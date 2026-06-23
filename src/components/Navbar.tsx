@@ -25,9 +25,10 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
             key={item.id}
             onClick={() => setActiveTab(item.id)}
             className={`nav-item ${isActive ? 'active' : ''}`}
+            style={{ position: 'relative' }}
           >
             <div className="nav-item-icon-wrapper">
-              <IconComponent size={20} />
+              <IconComponent size={20} strokeWidth={isActive ? 2.2 : 1.8} />
             </div>
             <span>{item.label}</span>
           </button>

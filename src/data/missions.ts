@@ -22,7 +22,7 @@ export interface Achievement {
   icon: string;
   xpReward: number;
   coinReward: number;
-  targetType: 'missions' | 'streak' | 'time' | 'level';
+  targetType: 'missions' | 'streak' | 'time' | 'level' | 'all';
   targetValue: number;
 }
 
@@ -102,7 +102,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   {
     id: 'first_mission',
     title: 'First Step',
-    description: 'Complete your first practice mission.',
+    description: 'Ek chhota kadam, badi kamyabi ki shuruat! Aapne apna pehla mission pura kar liya hai.',
     icon: '🎯',
     xpReward: 15,
     coinReward: 5,
@@ -112,7 +112,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   {
     id: 'missions_10',
     title: 'Speaking Routine',
-    description: 'Complete 10 practice missions.',
+    description: 'Consistency is key! Aapne apni practice ko apni aadat bana liya hai.',
     icon: '⚡',
     xpReward: 30,
     coinReward: 10,
@@ -122,7 +122,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   {
     id: 'missions_50',
     title: 'Village Elder',
-    description: 'Complete 50 practice missions.',
+    description: 'Ab aap sirf learner nahi, guide ban chuke hain. Village level par aapki pakad mazboot hai.',
     icon: '🏡',
     xpReward: 100,
     coinReward: 50,
@@ -131,18 +131,28 @@ export const ACHIEVEMENTS: Achievement[] = [
   },
   {
     id: 'missions_100',
-    title: 'Fluent Orator',
-    description: 'Complete 100 practice missions.',
-    icon: '🗣️',
-    xpReward: 200,
-    coinReward: 100,
+    title: 'City Slicker',
+    description: 'City ki bhag-daur mein bhi aapne apni speaking practice jari rakhi. Bahut khub!',
+    icon: '🏢',
+    xpReward: 150,
+    coinReward: 75,
     targetType: 'missions',
     targetValue: 100
   },
   {
+    id: 'missions_200',
+    title: 'Fluent Orator',
+    description: 'Ab aapke shabdon mein wo flow aur confidence hai jo ek expert speaker ke paas hota hai.',
+    icon: '🗣️',
+    xpReward: 250,
+    coinReward: 125,
+    targetType: 'missions',
+    targetValue: 200
+  },
+  {
     id: 'streak_7',
     title: 'Week on Fire',
-    description: 'Maintain a 7-day speaking streak.',
+    description: 'Aapki lagan aur mehnat se ek poora hafta roshan ho gaya hai. Keep the fire burning!',
     icon: '🔥',
     xpReward: 50,
     coinReward: 20,
@@ -152,7 +162,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   {
     id: 'streak_30',
     title: 'Habit Master',
-    description: 'Maintain a 30-day speaking streak.',
+    description: '30 din ki nirantar mehnat! Aapne discipline ka naya benchmark set kar diya hai.',
     icon: '👑',
     xpReward: 150,
     coinReward: 80,
@@ -160,34 +170,34 @@ export const ACHIEVEMENTS: Achievement[] = [
     targetValue: 30
   },
   {
-    id: 'time_100',
-    title: 'Dedicated Voice',
-    description: 'Speak for a cumulative 100 minutes (6000 seconds).',
-    icon: '⏱️',
-    xpReward: 100,
+    id: 'midnight_speaker',
+    title: 'Midnight Speaker',
+    description: 'Jab duniya so rahi hoti hai, aap apni skills ko polish kar rahe hote hain. Dedicated!',
+    icon: '🌙',
+    xpReward: 80,
     coinReward: 40,
-    targetType: 'time',
-    targetValue: 6000
+    targetType: 'time', // Will be custom evaluated for Night session in App.tsx
+    targetValue: 1
   },
   {
-    id: 'level_intermediate',
-    title: 'City Slicker',
-    description: 'Unlock the Intermediate level.',
-    icon: '🏢',
-    xpReward: 100,
-    coinReward: 50,
-    targetType: 'level',
-    targetValue: 2 // Level 2
+    id: 'gold_medalist',
+    title: 'Gold Medalist',
+    description: 'Aapne milestone ke sare records tod diye hain. Aap SpeakFlow ke asli champion hain!',
+    icon: '🏅',
+    xpReward: 500,
+    coinReward: 250,
+    targetType: 'missions',
+    targetValue: 500
   },
   {
-    id: 'level_advanced',
-    title: 'Elite Keynote',
-    description: 'Unlock the Advanced level.',
-    icon: '🌟',
-    xpReward: 200,
-    coinReward: 100,
-    targetType: 'level',
-    targetValue: 3 // Level 3
+    id: 'grand_master',
+    title: 'Grand Master',
+    description: 'SpeakFlow Practitioner ke सर्वोच्च shikhar par! Aapne sabhi chunautiyon ko paar kar liya hai.',
+    icon: '🏆',
+    xpReward: 1000,
+    coinReward: 500,
+    targetType: 'all', // Unlocked when all other achievements are earned
+    targetValue: 9
   }
 ];
 

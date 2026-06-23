@@ -382,7 +382,7 @@ export const TeleprompterScreen: React.FC<TeleprompterScreenProps> = ({
         for (let i = 0; i < bufferLength; i++) {
           const barHeight = (dataArray[i] / 255) * canvas.height * 0.9;
           
-          ctx.fillStyle = `rgba(14, 165, 233, ${0.4 + (barHeight / canvas.height)})`;
+          ctx.fillStyle = `rgba(212, 175, 55, ${0.4 + (barHeight / canvas.height)})`;
           ctx.fillRect(x, canvas.height / 2 - barHeight / 2, barWidth - 4, barHeight);
           
           x += barWidth;
@@ -409,7 +409,7 @@ export const TeleprompterScreen: React.FC<TeleprompterScreenProps> = ({
       animationFrameIdRef.current = requestAnimationFrame(drawMock);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      ctx.strokeStyle = 'rgba(16, 185, 129, 0.7)'; // fallback theme colors
+      ctx.strokeStyle = 'rgba(212, 175, 55, 0.7)';
       ctx.lineWidth = 3;
       ctx.beginPath();
       

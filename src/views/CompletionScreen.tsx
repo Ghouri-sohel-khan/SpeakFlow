@@ -322,7 +322,7 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
       display: 'flex',
       flexDirection: 'column',
       overflow: 'hidden',
-      background: 'linear-gradient(to bottom, #0F172A 0%, #111827 100%)',
+      background: 'linear-gradient(to bottom, #0d0c18 0%, #090810 100%)',
       position: 'relative'
     }}>
       {/* Dynamic Style injection for premium load animations */}
@@ -357,30 +357,30 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
         textAlign: 'center',
         padding: '12px 16px',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
-        background: 'rgba(15, 23, 42, 0.65)',
+        background: 'rgba(11, 10, 18, 0.75)',
         backdropFilter: 'blur(12px)',
         zIndex: 10
       }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16,185,129,0.2)', padding: '4px 10px', borderRadius: '20px', marginBottom: '8px' }} className="anim-pop">
-          <Award size={14} style={{ color: '#10b981' }} />
-          <span style={{ fontSize: '11px', fontWeight: 800, color: '#10b981', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(212, 175, 55, 0.1)', border: '1px solid rgba(212, 175, 55, 0.2)', padding: '4px 10px', borderRadius: '20px', marginBottom: '8px' }} className="anim-pop">
+          <Award size={14} style={{ color: '#D4AF37' }} />
+          <span style={{ fontSize: '11px', fontWeight: 800, color: '#D4AF37', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
             Mission Complete
           </span>
         </div>
         
-        <h3 style={{ fontSize: '15px', fontWeight: 800, color: '#fff', fontFamily: 'Outfit', margin: '0 0 6px' }}>
+        <h3 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'Outfit', margin: '0 0 6px' }}>
           {mission.title}
         </h3>
 
         {/* Dynamic Rewards pills */}
         <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '6px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(16, 185, 129, 0.08)', padding: '3px 8px', borderRadius: '12px', border: '1px solid rgba(16,185,129,0.12)' }}>
-            <Zap size={11} style={{ color: '#10b981' }} fill="#10b981" />
-            <span style={{ fontSize: '11px', fontWeight: 800, color: '#fff' }}>+{mission.xp} XP</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(212, 175, 55, 0.08)', padding: '3px 8px', borderRadius: '12px', border: '1px solid rgba(212, 175, 55, 0.12)' }}>
+            <Zap size={11} style={{ color: '#D4AF37' }} fill="#D4AF37" />
+            <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-primary)' }}>+{mission.xp} XP</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(251, 191, 36, 0.08)', padding: '3px 8px', borderRadius: '12px', border: '1px solid rgba(251,191,36,0.12)' }}>
-            <Coins size={11} style={{ color: '#fbbf24' }} fill="#fbbf24" />
-            <span style={{ fontSize: '11px', fontWeight: 800, color: '#fff' }}>+{mission.coins} Coins</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(212, 175, 55, 0.08)', padding: '3px 8px', borderRadius: '12px', border: '1px solid rgba(212, 175, 55, 0.12)' }}>
+            <Coins size={11} style={{ color: '#D4AF37' }} fill="#D4AF37" />
+            <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-primary)' }}>+{mission.coins} Coins</span>
           </div>
         </div>
       </div>
@@ -446,8 +446,8 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
                   key={i}
                   style={{
                     fontSize: '28px',
-                    color: i < validatedStats.stars ? '#fbbf24' : 'rgba(255, 255, 255, 0.15)',
-                    textShadow: i < validatedStats.stars ? '0 0 12px rgba(251, 191, 36, 0.6)' : '',
+                    color: i < validatedStats.stars ? '#D4AF37' : 'rgba(245, 240, 232, 0.12)',
+                    textShadow: i < validatedStats.stars ? '0 0 12px rgba(212, 175, 55, 0.5)' : '',
                     transition: 'all 0.3s ease'
                   }}
                 >
@@ -457,31 +457,31 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
             </div>
 
             <div>
-              <h4 style={{ fontSize: '18px', fontWeight: 800, color: '#fff', fontFamily: 'Outfit', margin: 0 }}>
+              <h4 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'Outfit', margin: 0 }}>
                 {getMasteryLabel(validatedStats.stars)}
               </h4>
-              <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', marginTop: '4px', display: 'block' }}>
-                Mastery Points: <strong style={{ color: '#fbbf24', fontSize: '15px' }}>{tierStars}</strong>
+              <span style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px', display: 'block' }}>
+                Mastery Points: <strong style={{ color: '#D4AF37', fontSize: '15px' }}>{tierStars}</strong>
               </span>
             </div>
 
             <div style={{ width: '100%', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '12px', marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 600 }}>
                 <span>Progress to Next Star</span>
-                <span style={{ color: '#fff' }}>{milestoneProgress} / 10 Points</span>
+                <span style={{ color: 'var(--text-primary)' }}>{milestoneProgress} / 10 Points</span>
               </div>
 
               {/* Custom Milestone Progress Bar */}
-              <div style={{ height: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '5px', overflow: 'hidden' }}>
+              <div style={{ height: '10px', background: 'rgba(212, 175, 55, 0.08)', borderRadius: '5px', overflow: 'hidden' }}>
                 <div className="anim-progress" style={{
                   height: '100%',
-                  background: 'linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%)',
+                  background: 'linear-gradient(90deg, #D4AF37 0%, #E8CC6A 100%)',
                   borderRadius: '5px',
-                  boxShadow: '0 0 8px rgba(251, 191, 36, 0.4)'
+                  boxShadow: '0 0 8px rgba(212, 175, 55, 0.35)'
                 }} />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '11px', fontWeight: 700, color: '#fbbf24' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '11px', fontWeight: 700, color: '#D4AF37' }}>
                 <span>{pointsRemaining} Points Remaining</span>
               </div>
             </div>
@@ -719,8 +719,8 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
                       display: 'flex',
                       alignItems: 'center',
                       gap: '12px',
-                      background: 'rgba(168, 85, 247, 0.12)',
-                      border: '1px solid rgba(168, 85, 247, 0.25)',
+                      background: 'rgba(212, 175, 55, 0.08)',
+                      border: '1px solid rgba(212, 175, 55, 0.2)',
                       borderRadius: '16px',
                       padding: '12px'
                     }}
@@ -739,23 +739,23 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
           {/* SECTION 5: UP NEXT */}
           <div className="glass-card anim-slide-up" style={{
             padding: '16px 20px',
-            border: '1px solid rgba(16, 185, 129, 0.25)',
-            background: 'linear-gradient(135deg, rgba(16,185,129,0.06) 0%, rgba(15,23,42,0.4) 100%)',
+            border: '1px solid rgba(212, 175, 55, 0.2)',
+            background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.06) 0%, rgba(20, 18, 28, 0.6) 100%)',
             margin: 0,
             borderRadius: '20px',
             flexGrow: 1
           }}>
-            <h4 style={{ fontSize: '11px', color: '#10b981', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px', fontWeight: 800 }}>
+            <h4 style={{ fontSize: '11px', color: '#D4AF37', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px', fontWeight: 800 }}>
               Up Next
             </h4>
 
             {isNextMissionAvailable && nextRecommendedMission ? (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
                 <div>
-                  <h5 style={{ fontSize: '15px', fontWeight: 800, color: '#fff', margin: '0 0 6px', fontFamily: 'Outfit' }}>
+                  <h5 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 6px', fontFamily: 'Outfit' }}>
                     {nextRecommendedMission.id === 9999 ? 'Daily Challenge' : nextRecommendedMission.title}
                   </h5>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 500 }}>
                     <span>Duration: {nextRecommendedMission.estimated_duration} Seconds</span>
                     <span>Reward: +{nextRecommendedMission.xp} XP</span>
                     <span>
@@ -777,7 +777,7 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
                     fontWeight: 700,
                     height: '38px',
                     whiteSpace: 'nowrap',
-                    boxShadow: '0 4px 12px rgba(16,185,129,0.25)'
+                    boxShadow: '0 4px 12px rgba(212, 175, 55, 0.25)'
                   }}
                   onClick={() => onStartMission(nextRecommendedMission)}
                 >
@@ -787,10 +787,10 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
             ) : (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
                 <div>
-                  <h5 style={{ fontSize: '15px', fontWeight: 800, color: '#94a3b8', margin: '0 0 6px', fontFamily: 'Outfit' }}>
+                  <h5 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-muted)', margin: '0 0 6px', fontFamily: 'Outfit' }}>
                     New Journeys
                   </h5>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontWeight: 500 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500 }}>
                     <span>Duration: Unlock Tomorrow</span>
                     <span>Reward: +10 XP</span>
                     <span>Difficulty: Locked</span>
