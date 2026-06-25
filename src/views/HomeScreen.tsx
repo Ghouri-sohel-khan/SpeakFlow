@@ -1,15 +1,9 @@
 import React from 'react';
-import { Play, Mic, BarChart2, Trophy, ChevronRight, History, Target } from 'lucide-react';
+import { Play, Flame, Sparkles, Clock, Target, Trophy, BookOpen, Mic, Award, Zap, Lock, Coins } from 'lucide-react';
 import type { UserProfile, VoiceRecording } from '../services/db';
 import { dbService } from '../services/db';
 import { getDailyChallengeForDay } from '../data/missions';
 import type { Mission } from '../data/missions';
-
-// Import environment background assets
-import bgJungle from '../assets/bg_jungle.png';
-import bgDesert from '../assets/bg_desert.png';
-import bgVillage from '../assets/bg_village.png';
-import bgCity from '../assets/bg_city.png';
 
 interface HomeScreenProps {
   profile: UserProfile;
@@ -20,6 +14,7 @@ interface HomeScreenProps {
   onSelectMission: (mission: Mission) => void;
   onSelectDailyChallenge: (duration?: number) => void;
   dailyChallengeCount: number;
+  onOpenAbout: () => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -30,13 +25,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onNavigate,
   onSelectMission,
   onSelectDailyChallenge,
-  dailyChallengeCount
+  dailyChallengeCount,
+  onOpenAbout
 }) => {
   // Local state for Custom Speaking Mode selection
   const [selectedDurationOption, setSelectedDurationOption] = React.useState<number | 'custom'>(60);
-  const [customSliderDuration, setCustomSliderDuration] = React.useState<number>(180); // 30s to 300s
+  const [customSliderDuration, setCustomSliderDuration] = React.useState<number>(180);
   
-  // Local state for recordings (to draw dynamic speaking pulse wave)
+  // Local state for recordings
   const [recordings, setRecordings] = React.useState<VoiceRecording[]>([]);
 
   React.useEffect(() => {
@@ -55,9 +51,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [profile.completedMissions]); // Reload when mission gets completed
+  }, [profile.completedMissions]);
 
-  // Ripple effect handler for tactile gold button clicking
+  // Tactile clicking ripple effect helper
   const triggerRipple = (e: React.MouseEvent<HTMLButtonElement>) => {
     const btn = e.currentTarget;
     const rect = btn.getBoundingClientRect();
@@ -102,44 +98,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                       missions.find(m => m.id <= unlockedCount) || 
                       missions[0];
 
-  // Map nextMission tier to dynamic environment background
-  const nextMissionIndex = nextMission ? ((nextMission.id - 1) % 50 + 1) : 1;
-  let envBg = bgJungle;
-  let envName = 'Emerald Jungle';
-  let envIcon = '🌴';
+  // Calculate speaking minutes
+  const totalSpeakingSeconds = recordings.reduce((acc, r) => acc + r.duration, 0);
+  const totalSpeakingMinutes = (totalSpeakingSeconds / 60).toFixed(1);
 
-  if (nextMissionIndex <= 5) {
-    envBg = bgJungle;
-    envName = 'Emerald Jungle';
-    envIcon = '🌴';
-  } else if (nextMissionIndex <= 10) {
-    envBg = bgDesert;
-    envName = 'Golden Dunes';
-    envIcon = '🏜️';
-  } else if (nextMissionIndex <= 15) {
-    envBg = bgVillage;
-    envName = 'Whisper Village';
-    envIcon = '🏡';
-  } else {
-    envBg = bgCity;
-    envName = 'SpeakFlow City';
-    envIcon = '🏢';
-  }
-
-  // Calculate daily missions completed today
-  const completedTodayCount = Object.values(profile.completedMissions).filter(m => {
-    return (Date.now() - m.timestamp) < 24 * 60 * 60 * 1000;
-  }).length;
-  const dailyGoalMax = 5;
-  const goalPercentage = Math.min(100, (completedTodayCount / dailyGoalMax) * 100);
-
-  // Level Progression: Level = Math.floor(XP / 100) + 1
+  // Level Progression details
   const currentLvlNum = Math.floor(profile.xp / 100) + 1;
   const currentLvlXP = profile.xp % 100;
-
-  // Get a list of completed missions to suggest in "Improve Again"
-  const completedList = missions.filter(m => completedIds.includes(m.id));
-  const improveAgainMission = completedList.length > 0 ? completedList[0] : null;
 
   // Time based greeting
   const getGreeting = () => {
@@ -149,500 +114,746 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     return 'Good evening';
   };
 
-  // Get active avatar description
-  const getAvatarTitle = () => {
-    const name = profile.avatar.charAt(0).toUpperCase() + profile.avatar.slice(1);
-    if (profile.xp >= 300) return `Master ${name}`;
-    if (profile.xp >= 100) return `Elite ${name}`;
-    return `Novice ${name}`;
+  // Get active avatar description icon
+  const getAvatarEmoji = () => {
+    if (profile.avatar === 'student') return '🎓';
+    if (profile.avatar === 'professional') return '💼';
+    if (profile.avatar === 'traveler') return '✈️';
+    return '🚀';
   };
 
-  // Dynamic speaking pulse calculations
-  const last3 = recordings.slice(0, 3);
-  const avgWPM = last3.length > 0
-    ? Math.round(last3.reduce((sum, r) => sum + r.wpm, 0) / last3.length)
-    : 110;
+  // Calculate weekly consistency grid (Monday to Sunday of the current week, timezone-safe)
+  const weeklyConsistency = (() => {
+    const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    
+    const isSameDay = (date1: Date, date2: Date) => {
+      return date1.getFullYear() === date2.getFullYear() &&
+             date1.getMonth() === date2.getMonth() &&
+             date1.getDate() === date2.getDate();
+    };
+    
+    const baseDate = new Date();
+    baseDate.setDate(baseDate.getDate() + dayOffset);
+    
+    const currentDay = baseDate.getDay();
+    const daysToSubtract = currentDay === 0 ? 6 : currentDay - 1;
+    
+    const monday = new Date(baseDate);
+    monday.setDate(baseDate.getDate() - daysToSubtract);
+    
+    return daysOfWeek.map((label, idx) => {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + idx);
+      
+      const hasActivity = recordings.some(r => isSameDay(new Date(r.timestamp), d));
+      const isToday = isSameDay(d, baseDate);
+      
+      return {
+        label,
+        active: hasActivity,
+        isToday,
+        date: d
+      };
+    });
+  })();
 
-  let improvementPercent = 10;
-  if (recordings.length >= 2) {
-    const latest = recordings[0].wpm;
-    const prior = recordings[1].wpm;
-    if (prior > 0) {
-      const calc = Math.round(((latest - prior) / prior) * 100);
-      if (calc > 0) improvementPercent = calc;
-    }
-  }
-
-  // Generate amplitudes based on last 3 recordings' speeds
-  const waveAmplitudes = last3.length > 0 
-    ? last3.map(r => Math.min(45, Math.max(10, (r.wpm / 250) * 45)))
-    : [20, 32, 18, 38, 22, 30]; // default layout
-  while (waveAmplitudes.length < 6) {
-    waveAmplitudes.push(waveAmplitudes[waveAmplitudes.length - 1] || 20);
-  }
-
-  // Draw smooth sound wave spline
-  const pathD = `M 10,${50 - waveAmplitudes[0]} 
-                 C 60,${50 - waveAmplitudes[1]} 120,${50 - waveAmplitudes[2]} 150,${50 - waveAmplitudes[3]} 
-                 C 180,${50 - waveAmplitudes[4]} 240,${50 - waveAmplitudes[5]} 290,${50 - waveAmplitudes[0]}`;
-  const fillPathD = `${pathD} L 290,70 L 10,70 Z`;
-
-  const isVaultActive = profile.streak > 0;
+  // Calculate customized milestones progress
+  const masteredCount = Object.values(profile.completedMissions).filter(m => m.stars >= 3).length;
+  const weeklyEnduranceMinutes = 10;
+  const weeklyEndurancePercent = Math.min(100, Math.round((parseFloat(totalSpeakingMinutes) / weeklyEnduranceMinutes) * 100));
 
   return (
-    <div style={{ padding: '0 0 24px' }}>
+    <div style={{ padding: '16px 0 32px' }}>
       
-      {/* ─── 1. The "Live Journey" Gateway (Adventure Hero Section - Top 40%) ─── */}
+      {/* ─── TOP HEADER (Apple-style Polish & Cleanliness) ─── */}
       <div style={{
-        position: 'relative',
-        height: '260px',
-        width: '100%',
-        backgroundImage: `url(${envBg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        overflow: 'hidden',
         display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-end',
-        padding: '24px 18px',
-        boxShadow: 'inset 0 -100px 70px -30px #0a0a0f'
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '12px 20px',
+        marginBottom: '16px'
       }}>
-        {/* Parallax ambient drifting layers */}
-        <div className="gateway-parallax-layer-1" style={{
-          position: 'absolute',
-          top: 0, left: 0, right: 0, bottom: 0,
-          background: 'radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.09) 0%, transparent 60%)',
-          pointerEvents: 'none',
-          mixBlendMode: 'screen'
-        }}></div>
-        <div className="gateway-parallax-layer-2" style={{
-          position: 'absolute',
-          top: 0, left: 0, right: 0, bottom: 0,
-          background: 'radial-gradient(circle at 80% 70%, rgba(212, 175, 55, 0.05) 0%, transparent 50%)',
-          pointerEvents: 'none',
-          mixBlendMode: 'screen'
-        }}></div>
-
-        {/* Bottom linear dark fade blend overlay */}
-        <div style={{
-          position: 'absolute',
-          bottom: 0, left: 0, right: 0,
-          height: '100%',
-          background: 'linear-gradient(to bottom, rgba(10, 10, 15, 0) 50%, rgba(10, 10, 15, 0.75) 80%, #0a0a0f 100%)',
-          pointerEvents: 'none',
-          zIndex: 1
-        }}></div>
-
-        {/* Top left environment stage info */}
-        <div style={{ position: 'absolute', top: '16px', left: '16px', zIndex: 10 }}>
-          <span className="gold-tag" style={{ background: 'rgba(13, 13, 18, 0.88)', borderColor: 'rgba(212, 175, 55, 0.45)' }}>
-            {envIcon} {envName}
-          </span>
-        </div>
-
-        {/* Top Right "The Golden Vault" (Reward Gateway) */}
-        <button
-          onClick={(e) => handleRippleClick(e, () => onNavigate('achievements'))}
-          className={`btn-tactile-press ${isVaultActive ? 'vault-ready-shimmer' : ''}`}
-          style={{
-            position: 'absolute',
-            top: '12px',
-            right: '16px',
-            width: '46px',
-            height: '46px',
-            borderRadius: '14px',
-            background: 'rgba(13, 13, 18, 0.82)',
-            border: '2px solid rgba(212, 175, 55, 0.25)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            zIndex: 20,
-            overflow: 'hidden',
-            boxShadow: isVaultActive ? '0 0 15px rgba(255, 215, 0, 0.4)' : 'none',
-            transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
-          }}
-          title="Trophy Room Vault"
-        >
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#FFD700" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 10h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z" />
-            <path d="M4 10c0-3 3-5 8-5s8 2 8 5" />
-            <circle cx="12" cy="15" r="2.2" fill="#FFD700" />
-          </svg>
-          {isVaultActive && (
-            <span style={{
-              position: 'absolute',
-              bottom: '1px',
-              width: '100%',
-              textAlign: 'center',
-              background: 'linear-gradient(90deg, #D4AF37, #E8CC6A)',
-              color: '#0d0d12',
-              fontSize: '7.5px',
-              fontWeight: 900,
-              letterSpacing: '0.2px',
-              padding: '0.5px 0',
-              textShadow: '0 0 2px rgba(255,255,255,0.4)'
-            }}>
-              READY
-            </span>
-          )}
-        </button>
-
-        {/* User profile details overlay */}
-        <div style={{ position: 'relative', zIndex: 10, display: 'flex', alignItems: 'center', gap: '14px', width: '100%' }}>
-          {/* Avatar Circle with metallic gold border */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
-            width: '56px',
-            height: '56px',
+            width: '44px',
+            height: '44px',
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, #D4AF37 0%, #A88A1E 100%)',
+            background: 'var(--surface-elevated)',
+            border: '1px solid rgba(244, 201, 93, 0.18)', // Engraved gold bezel
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '28px',
-            boxShadow: '0 0 20px rgba(212, 175, 55, 0.35)',
-            border: '2px solid rgba(255, 215, 0, 0.65)',
-            flexShrink: 0
+            fontSize: '22px',
+            boxShadow: 'var(--shadow-sm)'
           }}>
-            {profile.avatar === 'student' && '🎓'}
-            {profile.avatar === 'professional' && '💼'}
-            {profile.avatar === 'traveler' && '✈️'}
-            {profile.avatar === 'entrepreneur' && '🚀'}
+            {getAvatarEmoji()}
           </div>
-
           <div style={{ textAlign: 'left' }}>
-            <h4 style={{ color: 'rgba(245, 240, 232, 0.7)', fontWeight: 500, fontSize: '11px', letterSpacing: '0.5px' }}>
-              {getGreeting()},
-            </h4>
-            <h2 style={{ fontSize: '20px', fontWeight: 800, fontFamily: 'Outfit', color: '#FFF', marginTop: '1px', textShadow: '0 2px 4px rgba(0,0,0,0.6)' }}>
+            <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 500 }}>
+              {getGreeting()}
+            </span>
+            <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginTop: '-1px' }}>
               {profile.username}
             </h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>
-              <span className="gold-tag" style={{ fontSize: '8px', padding: '1px 6px', background: 'rgba(212,175,55,0.15)' }}>
-                {getAvatarTitle()}
+          </div>
+        </div>
+
+        {/* Streak Flame Pill in Gold */}
+        <div 
+          onClick={() => onNavigate('achievements')}
+          className="btn-tactile-press"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '5px',
+            background: 'rgba(244, 201, 93, 0.08)',
+            border: '1px solid rgba(244, 201, 93, 0.2)',
+            padding: '6px 14px',
+            borderRadius: '20px',
+            color: 'var(--secondary)',
+            fontSize: '13px',
+            fontWeight: 700,
+            cursor: 'pointer',
+            boxShadow: '0 4px 12px rgba(244, 201, 93, 0.04)'
+          }}
+        >
+          <Flame size={14} fill="var(--secondary)" />
+          <span>{profile.streak} Day Streak</span>
+        </div>
+      </div>
+
+      {/* ─── SECTION 1: LEARN & PRACTICE (Rose Gold theme, `#D88BA0`) ─── */}
+      <div style={{ padding: '0 20px', marginTop: '8px', marginBottom: '12px', textAlign: 'left' }}>
+        <h3 style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1.5px', fontFamily: 'Manrope' }}>
+          Learn & Practice
+        </h3>
+      </div>
+
+      {/* Guided Practice Card (Refined Editorial Visual Layout) */}
+      {nextMission && (
+        <div className="card-secondary" style={{
+          padding: '24px',
+          border: '1px solid rgba(216, 139, 160, 0.18)', // Rose gold bezel outline
+          background: 'var(--surface)',
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          {/* Subtle editorial/script-inspired background texture */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            borderRadius: '20px',
+            overflow: 'hidden',
+            pointerEvents: 'none',
+            zIndex: 0,
+            opacity: 0.03, // 3% opacity as requested
+            filter: 'blur(0.5px)' // Slight blur
+          }}>
+            {/* Soft manuscript-style structure with faint horizontal text lines */}
+            <div style={{
+              padding: '24px',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '14px',
+              fontFamily: 'serif'
+            }}>
+              <div style={{ borderBottom: '1px solid #FFFFFF', height: '16px', width: '92%' }}></div>
+              <div style={{ borderBottom: '1px solid #FFFFFF', height: '16px', width: '85%' }}></div>
+              <div style={{ borderBottom: '1px solid #FFFFFF', height: '16px', width: '95%' }}></div>
+              <div style={{ borderBottom: '1px solid #FFFFFF', height: '16px', width: '78%' }}></div>
+              <div style={{ borderBottom: '1px solid #FFFFFF', height: '16px', width: '88%' }}></div>
+              <div style={{ borderBottom: '1px solid #FFFFFF', height: '16px', width: '90%' }}></div>
+            </div>
+          </div>
+
+          {/* Content Wrapper to overlay above background texture */}
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', textAlign: 'left' }}>
+            
+            {/* [LEARN & PRACTICE] Category Label */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
+              <span style={{
+                fontSize: '11px',
+                color: 'var(--primary)', // `#D88BA0`
+                fontWeight: 700,
+                letterSpacing: '1.5px',
+                fontFamily: 'Manrope',
+                textTransform: 'uppercase'
+              }}>
+                Learn & Practice
               </span>
-              <span style={{ fontSize: '10px', color: 'rgba(245, 240, 232, 0.75)', textShadow: '0 1px 2px rgba(0,0,0,0.8)', fontWeight: 500 }}>
-                Level {currentLvlNum}
+              <span style={{
+                fontSize: '9px',
+                background: 'rgba(255, 255, 255, 0.04)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border)',
+                padding: '2px 8px',
+                borderRadius: '10px',
+                fontWeight: 700,
+                letterSpacing: '0.5px',
+                textTransform: 'uppercase'
+              }}>
+                {nextMission.difficulty}
               </span>
             </div>
+
+            {/* Title: 🎤 Guided Practice */}
+            <h3 style={{ 
+              fontSize: '22px', 
+              fontWeight: 700, 
+              color: 'var(--text-primary)', 
+              margin: '0 0 6px 0', 
+              fontFamily: 'Manrope', 
+              lineHeight: '1.3',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <span style={{ fontSize: '20px' }}>🎤</span> Guided Practice
+            </h3>
+
+            {/* Description: Follow guided scripts and improve speaking confidence. */}
+            <p style={{ 
+              fontSize: '14px', 
+              color: 'var(--text-secondary)', 
+              margin: '0 0 20px 0', 
+              lineHeight: '1.5',
+              fontWeight: 500 
+            }}>
+              Follow guided scripts and improve speaking confidence.
+            </p>
+
+            {/* Dynamic Active Script Info Box (Premium Editorial Reading Area) */}
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.015)',
+              border: '1px solid rgba(216, 139, 160, 0.08)',
+              borderRadius: '12px',
+              padding: '14px 16px',
+              marginBottom: '20px',
+              textAlign: 'left'
+            }}>
+              <div style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+                Active Script Focus
+              </div>
+              <h4 style={{ fontSize: '15px', fontWeight: 700, color: '#FFFFFF', margin: '0 0 4px 0', fontFamily: 'Manrope' }}>
+                {nextMission.title}
+              </h4>
+              <p style={{ fontSize: '12.5px', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.4', fontStyle: 'italic', opacity: 0.8 }}>
+                "{nextMission.content ? (nextMission.content.length > 85 ? nextMission.content.slice(0, 85) + '...' : nextMission.content) : 'Practice reading cadence, breath control, and emotional resonance.'}"
+              </p>
+            </div>
+
+            {/* Footer Row: Metadata and Start Practice Button */}
+            <div style={{
+              borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+              paddingTop: '16px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-secondary)', fontSize: '12.5px' }}>
+                  <Clock size={13} style={{ color: 'var(--primary)' }} />
+                  <span>{nextMission.estimated_duration}s target</span>
+                </div>
+              </div>
+              
+              <button
+                onClick={(e) => handleRippleClick(e, () => onSelectMission(nextMission))}
+                className="btn-premium btn-tactile-press"
+                style={{
+                  padding: '10px 20px',
+                  borderRadius: '12px',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  background: 'var(--primary)', // `#D88BA0`
+                  color: 'var(--bg-deep)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  transition: 'transform 0.15s ease'
+                }}
+              >
+                <Play size={12} fill="var(--bg-deep)" /> Start Practice
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* Quick Access links to Script Library and Voice Diary */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '12px',
+        margin: '12px 16px'
+      }}>
+        {/* Script Library tab link */}
+        <div 
+          onClick={() => onNavigate('journey')}
+          className="card-minimal"
+          style={{
+            margin: 0,
+            padding: '16px',
+            background: 'var(--surface)',
+            border: '1px solid rgba(216, 139, 160, 0.12)', // Rose gold bezel
+            borderRadius: '16px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+            gap: '10px',
+            cursor: 'pointer',
+            textAlign: 'left',
+            transition: 'transform 0.2s ease'
+          }}
+        >
+          <div style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '8px',
+            background: 'rgba(216, 139, 160, 0.08)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--primary)'
+          }}>
+            <BookOpen size={16} />
+          </div>
+          <div>
+            <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>
+              Script Library
+            </h4>
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px', display: 'block' }}>
+              Browse 150+ custom scenarios
+            </span>
+          </div>
+        </div>
+
+        {/* Voice Diary tab link */}
+        <div 
+          onClick={() => onNavigate('diary')}
+          className="card-minimal"
+          style={{
+            margin: 0,
+            padding: '16px',
+            background: 'var(--surface)',
+            border: '1px solid rgba(216, 139, 160, 0.12)', // Rose gold bezel
+            borderRadius: '16px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+            gap: '10px',
+            cursor: 'pointer',
+            textAlign: 'left',
+            transition: 'transform 0.2s ease'
+          }}
+        >
+          <div style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '8px',
+            background: 'rgba(216, 139, 160, 0.08)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--primary)'
+          }}>
+            <Mic size={16} />
+          </div>
+          <div>
+            <h4 style={{ fontSize: '13px', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>
+              Voice Diary
+            </h4>
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px', display: 'block' }}>
+              Record vocal sessions freely
+            </span>
           </div>
         </div>
       </div>
 
-      {/* ─── 2. "The Motivation Pulse" (Interactive Card) ─── */}
-      <div className="glass-card speaking-pulse-card" style={{ margin: '-10px 16px 16px', padding: '18px 20px', borderRadius: '22px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '15px' }}>📈</span>
-            <span className="section-label" style={{ color: '#D4AF37', letterSpacing: '1px' }}>Speaking Pulse</span>
+      {/* ─── SECTION 2: PROVE YOURSELF (Gold theme, `#F4C95D`) ─── */}
+      <div style={{ padding: '0 20px', marginTop: '24px', marginBottom: '12px', textAlign: 'left' }}>
+        <h3 style={{ fontSize: '11px', color: 'var(--secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1.5px', fontFamily: 'Manrope' }}>
+          Prove Yourself
+        </h3>
+      </div>
+
+      {/* Daily Challenge Card (Trophy motif, Test -> Achieve -> Earn) */}
+      <div className="card-secondary" style={{
+        border: '1px solid rgba(244, 201, 93, 0.18)', // Premium gold bezel tint
+        background: 'var(--surface)'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Trophy size={16} style={{ color: 'var(--secondary)' }} fill="rgba(244, 201, 93, 0.15)" />
+            <h4 style={{ color: 'var(--secondary)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700 }}>
+              Daily Speaking Challenge
+            </h4>
           </div>
-          <span style={{ fontSize: '10px', background: 'rgba(212, 175, 55, 0.12)', color: '#D4AF37', padding: '3px 8px', borderRadius: '10px', fontWeight: 700 }}>
-            🔥 {profile.streak} Day Streak
+          <span style={{ fontSize: '10px', background: 'rgba(244, 201, 93, 0.1)', color: 'var(--secondary)', border: '1px solid rgba(244, 201, 93, 0.2)', padding: '3px 8px', borderRadius: '10px', fontWeight: 700 }}>
+            {dailyChallengeCount >= 20 ? 'Custom Mode' : `Level ${dailyChallengeCount + 1}`}
           </span>
         </div>
 
-        {/* Customized SVG Fluency Waveform */}
-        <div style={{ position: 'relative', height: '62px', margin: '14px 0 10px', overflow: 'hidden' }}>
-          <svg viewBox="0 0 300 70" width="100%" height="100%" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
-            <defs>
-              <linearGradient id="waveGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="rgba(212, 175, 55, 0.35)" />
-                <stop offset="100%" stopColor="rgba(212, 175, 55, 0.0)" />
-              </linearGradient>
-              <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#A88A1E" />
-                <stop offset="50%" stopColor="#FFD700" />
-                <stop offset="100%" stopColor="#D4AF37" />
-              </linearGradient>
-            </defs>
-            {/* Area fill */}
-            <path d={fillPathD} fill="url(#waveGrad)" style={{ transition: 'all 0.5s ease' }} />
-            {/* Wave line */}
-            <path d={pathD} fill="none" stroke="url(#lineGrad)" strokeWidth="2.8" strokeLinecap="round" style={{ filter: 'drop-shadow(0 0 5px rgba(255, 215, 0, 0.6))', transition: 'all 0.5s ease' }} />
+        <p style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 500, lineHeight: '1.5', margin: '8px 0 14px', fontStyle: 'italic', opacity: 0.9, textAlign: 'left' }}>
+          "{getDailyChallengeForDay(dayOffset).prompt}"
+        </p>
+
+        {/* Custom duration setup */}
+        {dailyChallengeCount >= 20 ? (
+          <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase', textAlign: 'left' }}>
+              Select Duration:
+            </span>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
+              {[30, 45, 60, 90, 120, 'custom'].map((opt) => {
+                const isSelected = selectedDurationOption === opt;
+                return (
+                  <button
+                    key={opt}
+                    onClick={() => setSelectedDurationOption(opt as any)}
+                    style={{
+                      padding: '6px',
+                      borderRadius: '8px',
+                      border: isSelected ? '1px solid var(--secondary)' : '1px solid var(--border)',
+                      background: isSelected ? 'rgba(244, 201, 93, 0.1)' : 'rgba(255,255,255,0.01)',
+                      color: isSelected ? 'var(--secondary)' : 'var(--text-secondary)',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    {opt === 'custom' ? 'Custom' : `${opt}s`}
+                  </button>
+                );
+              })}
+            </div>
             
-            {/* Amplitudes dots */}
-            {last3.map((rec, i) => {
-              const xVal = 10 + i * 135; // Position points horizontally
-              const amp = waveAmplitudes[i] || 20;
-              const yVal = 50 - amp;
-              return (
-                <g key={rec.id}>
-                  <circle cx={xVal} cy={yVal} r="4" fill="#FFF" stroke="#D4AF37" strokeWidth="2" style={{ filter: 'drop-shadow(0 0 3px #D4AF37)' }} />
-                  <text x={xVal} y={yVal - 8} fill="rgba(245, 240, 232, 0.9)" fontSize="8.5" fontWeight="bold" textAnchor="middle">
-                    {rec.wpm} WPM
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
-        </div>
-
-        {/* Motivational speech pulse tags */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', marginTop: '10px' }}>
-          <h4 style={{ fontSize: '13.5px', fontWeight: 700, color: '#D4AF37', margin: 0, fontFamily: 'Outfit' }}>
-            ✨ Aaj aapki speaking rhythm {improvementPercent}% behtar hai!
-          </h4>
-          <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0 }}>
-            Fluent trend average: <strong style={{ color: '#fff' }}>{avgWPM} WPM</strong> over your last {Math.max(1, last3.length)} attempts.
-          </p>
-        </div>
-
-        {/* Daily Goals progress integrated cleanly */}
-        <div style={{ marginTop: '14px', borderTop: '1px solid rgba(212, 175, 55, 0.08)', paddingTop: '12px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', marginBottom: '5px' }}>
-            <span style={{ color: 'var(--text-secondary)' }}>Daily Mission Goal</span>
-            <span style={{ color: '#D4AF37', fontWeight: 700 }}>{completedTodayCount} / {dailyGoalMax} completed</span>
-          </div>
-          <div className="xp-bar-track" style={{ height: '5px' }}>
-            <div className="xp-bar-fill" style={{ width: `${goalPercentage}%` }}></div>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: 'var(--text-muted)', marginTop: '6px' }}>
-            <span>Total XP: {profile.xp}</span>
-            <span>Next Level: {currentLvlXP}/100 XP</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ─── 3. Next Mission vs Daily Challenge Grid Layout ─── */}
-      <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-        
-        {/* Next Mission - High-Contrast Gold-Bordered Card */}
-        {nextMission && (
-          <div className="glass-card" style={{
-            margin: 0,
-            padding: '20px',
-            border: '2px solid #D4AF37',
-            background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.08) 0%, rgba(20, 18, 28, 0.9) 100%)',
-            boxShadow: '0 8px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(212, 175, 55, 0.15)'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
-              <div style={{ flex: 1 }}>
-                <span className="gold-tag" style={{ marginBottom: '6px' }}>
-                  <Target size={10} style={{ marginRight: '3px' }} /> Active Journey
-                </span>
-                <h3 style={{ fontSize: '18px', fontWeight: 800, marginTop: '8px', color: 'var(--text-primary)', fontFamily: 'Outfit' }}>
-                  {nextMission.title}
-                </h3>
-                <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
-                  Mission {nextMission.id} • {nextMission.environment} • {Math.round((nextMission.word_count / nextMission.estimated_duration) * 60)} WPM Target
-                </p>
+            {selectedDurationOption === 'custom' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', background: 'rgba(0,0,0,0.2)', padding: '10px 12px', borderRadius: '10px', border: '1px solid var(--border)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-secondary)' }}>
+                  <span>Duration Limit:</span>
+                  <strong style={{ color: 'var(--secondary)' }}>{customSliderDuration}s</strong>
+                </div>
+                <input
+                  type="range"
+                  min="30"
+                  max="300"
+                  step="5"
+                  value={customSliderDuration}
+                  onChange={(e) => setCustomSliderDuration(Number(e.target.value))}
+                  style={{
+                    width: '100%',
+                    accentColor: 'var(--secondary)',
+                    cursor: 'pointer',
+                    marginTop: '4px'
+                  }}
+                />
               </div>
-              <button
-                onClick={(e) => handleRippleClick(e, () => onSelectMission(nextMission))}
-                className="btn-tactile-press btn-metallic-shine"
-                style={{
-                  width: '46px',
-                  height: '46px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #D4AF37 0%, #A88A1E 100%)',
-                  border: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#0d0d12',
-                  cursor: 'pointer',
-                  boxShadow: '0 4px 14px rgba(212, 175, 55, 0.35)',
-                  flexShrink: 0
-                }}
-              >
-                <Play size={20} fill="#0d0d12" style={{ marginLeft: '2px' }} />
-              </button>
-            </div>
-            
-            <div style={{ borderTop: '1px solid rgba(212, 175, 55, 0.12)', paddingTop: '10px', marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
-                {profile.completedMissions[nextMission.id] ? `Best: ${profile.completedMissions[nextMission.id].stars} ⭐` : 'Unattempted'}
-              </span>
-              <span style={{ fontSize: '11px', color: '#D4AF37', fontWeight: 700 }}>
-                +{nextMission.xp} XP • +{nextMission.coins} Coins
-              </span>
-            </div>
+            )}
+          </div>
+        ) : (
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)', background: 'rgba(0,0,0,0.12)', padding: '8px 12px', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.04)', marginBottom: '12px', textAlign: 'left' }}>
+            🎯 Complete 20 challenges to unlock Custom Mode • Progress: <strong style={{ color: 'var(--secondary)' }}>{dailyChallengeCount} / 20</strong>
           </div>
         )}
 
-        {/* Daily Challenge - Sleek Secondary Card */}
-        <div className="glass-card" style={{
-          margin: 0,
-          background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.03) 0%, rgba(20, 18, 28, 0.85) 100%)',
-          border: '1px solid rgba(212, 175, 55, 0.15)',
-          padding: '16px 18px',
-          borderRadius: '20px'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '15px' }}>🎙️</span>
-              <h4 style={{ color: '#D4AF37', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 700 }}>
-                Daily Speaking Challenge
-              </h4>
-            </div>
-            {dailyChallengeCount < 20 ? (
-              <span style={{ fontSize: '10px', background: 'rgba(212, 175, 55, 0.1)', color: '#D4AF37', padding: '3px 8px', borderRadius: '10px', fontWeight: 700 }}>
-                Challenge {dailyChallengeCount + 1}
-              </span>
-            ) : (
-              <span style={{ fontSize: '10px', background: 'rgba(212, 175, 55, 0.12)', color: '#E8CC6A', padding: '3px 8px', borderRadius: '10px', fontWeight: 800 }}>
-                🎉 Custom Mode
-              </span>
-            )}
-          </div>
-
-          <p style={{ fontSize: '12.5px', color: 'var(--text-primary)', fontWeight: 500, lineHeight: '1.45', margin: '0 0 10px', fontStyle: 'italic', opacity: 0.85 }}>
-            "{getDailyChallengeForDay(dayOffset).prompt}"
-          </p>
-
-          {dailyChallengeCount >= 20 ? (
-            <div style={{ borderTop: '1px solid rgba(212, 175, 55, 0.08)', paddingTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '10px' }}>
-              <span style={{ fontSize: '10px', color: 'var(--text-secondary)', fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                Select Duration:
-              </span>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
-                {[30, 45, 60, 90, 120, 'custom'].map((opt) => {
-                  const isSelected = selectedDurationOption === opt;
-                  return (
-                    <button
-                      key={opt}
-                      onClick={() => setSelectedDurationOption(opt as any)}
-                      style={{
-                        padding: '6px',
-                        borderRadius: '8px',
-                        border: isSelected ? '1px solid #D4AF37' : '1px solid rgba(212, 175, 55, 0.1)',
-                        background: isSelected ? 'rgba(212, 175, 55, 0.15)' : 'rgba(255,255,255,0.02)',
-                        color: isSelected ? '#D4AF37' : 'var(--text-secondary)',
-                        fontSize: '11px',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease'
-                      }}
-                    >
-                      {opt === 'custom' ? 'Custom' : `${opt}s`}
-                    </button>
-                  );
-                })}
-              </div>
-              
-              {selectedDurationOption === 'custom' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', background: 'rgba(0,0,0,0.2)', padding: '10px 12px', borderRadius: '10px', border: '1px solid rgba(212, 175, 55, 0.08)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-secondary)' }}>
-                    <span>Duration Limit:</span>
-                    <strong style={{ color: '#D4AF37' }}>{customSliderDuration}s</strong>
-                  </div>
-                  <input
-                    type="range"
-                    min="30"
-                    max="300"
-                    step="5"
-                    value={customSliderDuration}
-                    onChange={(e) => setCustomSliderDuration(Number(e.target.value))}
-                    style={{
-                      width: '100%',
-                      accentColor: '#D4AF37',
-                      cursor: 'pointer',
-                      marginTop: '4px'
-                    }}
-                  />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', color: 'var(--text-muted)' }}>
-                    <span>30s</span>
-                    <span>300s (5m)</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div style={{ fontSize: '10px', color: 'var(--text-muted)', background: 'rgba(0,0,0,0.15)', padding: '7px 10px', borderRadius: '8px', border: '1px solid rgba(212, 175, 55, 0.06)', marginBottom: '10px' }}>
-              🎯 Complete 20 challenges to unlock Custom Mode — Progress: <strong style={{ color: '#D4AF37' }}>{dailyChallengeCount} / 20</strong>
-            </div>
-          )}
-
-          <div style={{ borderTop: '1px solid rgba(212, 175, 55, 0.08)', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 500 }}>
-              {dailyChallengeCount >= 20 ? (
-                <>Limit: <strong style={{ color: '#D4AF37' }}>{selectedDurationOption === 'custom' ? customSliderDuration : selectedDurationOption}s</strong></>
-              ) : (
-                <>Limit: <strong style={{ color: '#D4AF37' }}>{currentLimit.seconds}s</strong></>
-              )}
+        <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <span style={{ fontSize: '11px', color: 'var(--secondary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '2px' }}>
+              <Zap size={11} fill="var(--secondary)" /> +40 XP
             </span>
-            <button
-              className="btn-premium btn-tactile-press btn-metallic-shine"
-              style={{
-                padding: '8px 16px',
-                borderRadius: '12px',
-                fontSize: '11px',
-                fontWeight: 700
-              }}
-              onClick={(e) => {
-                const dur = dailyChallengeCount >= 20
-                  ? (selectedDurationOption === 'custom' ? customSliderDuration : (selectedDurationOption as number))
-                  : currentLimit.seconds;
-                handleRippleClick(e, () => onSelectDailyChallenge(dur));
-              }}
-            >
-              Start Challenge
-            </button>
+            <span style={{ fontSize: '11px', color: 'var(--secondary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '2px' }}>
+              <Coins size={11} fill="var(--secondary)" style={{ color: 'var(--secondary)' }} /> +15 Coins
+            </span>
+          </div>
+          
+          <button
+            className="btn-premium btn-tactile-press btn-metallic-shine"
+            style={{
+              padding: '8px 16px',
+              borderRadius: '10px',
+              fontSize: '12px',
+              fontWeight: 700,
+              background: 'var(--secondary)',
+              color: 'var(--bg-deep)'
+            }}
+            onClick={(e) => {
+              const dur = dailyChallengeCount >= 20
+                ? (selectedDurationOption === 'custom' ? customSliderDuration : (selectedDurationOption as number))
+                : currentLimit.seconds;
+              handleRippleClick(e, () => onSelectDailyChallenge(dur));
+            }}
+          >
+            Start Challenge
+          </button>
+        </div>
+      </div>
+
+      {/* Weekly Endurance Challenge Card (Progress bar & rewards, Test -> Achieve -> Earn) */}
+      <div className="card-secondary" style={{
+        border: '1px solid rgba(244, 201, 93, 0.18)', // Gold bezel tint
+        background: 'var(--surface)',
+        marginTop: '12px'
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Award size={16} style={{ color: 'var(--secondary)' }} fill="rgba(244, 201, 93, 0.15)" />
+            <h4 style={{ color: '#FFFFFF', fontSize: '13px', fontWeight: 700, fontFamily: 'Manrope', margin: 0 }}>
+              Weekly Endurance Workout
+            </h4>
+          </div>
+          <span style={{ fontSize: '11px', color: 'var(--secondary)', fontWeight: 700 }}>
+            {weeklyEndurancePercent}% Done
+          </span>
+        </div>
+
+        <p style={{ fontSize: '12.5px', color: 'var(--text-secondary)', textAlign: 'left', lineHeight: '1.45', margin: '0 0 12px' }}>
+          Practice speaking for at least <strong>{weeklyEnduranceMinutes} minutes</strong> this week to unlock elite vocal endurance rewards.
+        </p>
+
+        {/* Dynamic Gold Progress Tracker */}
+        <div style={{ marginBottom: '14px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '6px', fontWeight: 600 }}>
+            <span>Stamina Progress:</span>
+            <span>{totalSpeakingMinutes} / {weeklyEnduranceMinutes} Mins</span>
+          </div>
+          <div className="xp-bar-track" style={{ height: '8px', background: 'rgba(255, 255, 255, 0.03)', borderRadius: '4px' }}>
+            <div className="xp-bar-fill" style={{ width: `${weeklyEndurancePercent}%`, background: 'var(--secondary)', borderRadius: '4px', height: '100%' }}></div>
+          </div>
+        </div>
+
+        <div style={{
+          borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+          paddingTop: '10px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+            Weekly Reward Target
+          </span>
+          <span style={{ fontSize: '11px', color: 'var(--secondary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '3px' }}>
+            <Sparkles size={11} /> +100 XP • +30 Coins
+          </span>
+        </div>
+      </div>
+
+      {/* Milestone Tasks Card (Trophy goals, locked/checkmark indicators) */}
+      <div className="card-secondary" style={{
+        border: '1px solid rgba(244, 201, 93, 0.18)', // Gold bezel tint
+        background: 'var(--surface)',
+        marginTop: '12px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+          <Target size={16} style={{ color: 'var(--secondary)' }} />
+          <h4 style={{ color: '#FFFFFF', fontSize: '13px', fontWeight: 700, fontFamily: 'Manrope', margin: 0 }}>
+            Milestone Tasks
+          </h4>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {/* Milestone 1: Mastered scripts */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            background: 'rgba(255, 255, 255, 0.01)',
+            border: '1px solid var(--border)',
+            borderRadius: '12px',
+            padding: '10px 12px',
+            textAlign: 'left'
+          }}>
+            <div style={{
+              width: '26px',
+              height: '26px',
+              borderRadius: '50%',
+              background: masteredCount >= 3 ? 'rgba(67, 217, 163, 0.1)' : 'rgba(244, 201, 93, 0.06)',
+              border: masteredCount >= 3 ? '1px solid var(--success)' : '1px solid rgba(244, 201, 93, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: masteredCount >= 3 ? 'var(--success)' : 'var(--secondary)',
+              fontSize: '11px',
+              flexShrink: 0
+            }}>
+              {masteredCount >= 3 ? '✓' : <Lock size={10} />}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '12.5px', fontWeight: 700, color: '#FFFFFF' }}>
+                Fluency Peak Milestone
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                Complete 3 scripts with a 3+ star rating (Progress: {masteredCount}/3)
+              </div>
+            </div>
+          </div>
+
+          {/* Milestone 2: Habit streak */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            background: 'rgba(255, 255, 255, 0.01)',
+            border: '1px solid var(--border)',
+            borderRadius: '12px',
+            padding: '10px 12px',
+            textAlign: 'left'
+          }}>
+            <div style={{
+              width: '26px',
+              height: '26px',
+              borderRadius: '50%',
+              background: profile.streak >= 7 ? 'rgba(67, 217, 163, 0.1)' : 'rgba(244, 201, 93, 0.06)',
+              border: profile.streak >= 7 ? '1px solid var(--success)' : '1px solid rgba(244, 201, 93, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: profile.streak >= 7 ? 'var(--success)' : 'var(--secondary)',
+              fontSize: '11px',
+              flexShrink: 0
+            }}>
+              {profile.streak >= 7 ? '✓' : <Lock size={10} />}
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '12.5px', fontWeight: 700, color: '#FFFFFF' }}>
+                Habit Pioneer Milestone
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                Reach a 7-day practice streak (Progress: {profile.streak}/7 days)
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ─── 4. Quick Actions Grid ─── */}
-      <div style={{ padding: '0 16px', marginTop: '18px' }}>
-        <span className="section-label" style={{ marginBottom: '10px', display: 'block' }}>
-          Quick Workouts
+      {/* ─── 3. PROGRESS SNAPSHOT (Clean Gamification Dashboard - Now as Footer Summary) ─── */}
+      <div style={{ padding: '0 20px', marginTop: '24px', marginBottom: '10px', textAlign: 'left' }}>
+        <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
+          Streak & Practice Snapshot
         </span>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-          <button className="btn-secondary btn-tactile-press btn-metallic-shine" style={{ padding: '14px 12px', borderRadius: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }} onClick={(e) => handleRippleClick(e, () => onNavigate('journey'))}>
-            <span style={{ fontSize: '20px' }}>🗺️</span>
-            <span style={{ fontSize: '11px', fontWeight: 600 }}>Explore Stages</span>
-          </button>
-          <button className="btn-secondary btn-tactile-press btn-metallic-shine" style={{ padding: '14px 12px', borderRadius: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }} onClick={(e) => handleRippleClick(e, () => onNavigate('diary'))}>
-            <Mic size={20} style={{ color: '#D4AF37' }} />
-            <span style={{ fontSize: '11px', fontWeight: 600 }}>Voice Diary</span>
-          </button>
-          <button className="btn-secondary btn-tactile-press btn-metallic-shine" style={{ padding: '14px 12px', borderRadius: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }} onClick={(e) => handleRippleClick(e, () => onNavigate('progress'))}>
-            <BarChart2 size={20} style={{ color: '#D4AF37' }} />
-            <span style={{ fontSize: '11px', fontWeight: 600 }}>Report & Audio</span>
-          </button>
-          <button className="btn-secondary btn-tactile-press btn-metallic-shine" style={{ padding: '14px 12px', borderRadius: '14px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }} onClick={(e) => handleRippleClick(e, () => onNavigate('achievements'))}>
-            <Trophy size={20} style={{ color: '#D4AF37' }} />
-            <span style={{ fontSize: '11px', fontWeight: 600 }}>Achievements</span>
-          </button>
+      </div>
+      
+      <div className="card-secondary" style={{ padding: '18px 20px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+        {/* Level and XP */}
+        <div style={{ marginBottom: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', marginBottom: '6px' }}>
+            <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>Level {currentLvlNum} Practitioner</span>
+            <span style={{ color: 'var(--primary)', fontWeight: 700 }}>{currentLvlXP} / 100 XP</span>
+          </div>
+          <div className="xp-bar-track" style={{ height: '6px' }}>
+            <div className="xp-bar-fill" style={{ width: `${currentLvlXP}%`, background: 'var(--primary)' }}></div>
+          </div>
+        </div>
+
+        {/* 7-Day Weekly Consistency Grid */}
+        <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '14px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '12px', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>
+            <span>Weekly Consistency</span>
+            <span style={{ color: 'var(--secondary)' }}>Habit Streak</span>
+          </div>
+          
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(7, 1fr)',
+            gap: '8px',
+            padding: '4px 0'
+          }}>
+            {weeklyConsistency.map((day, idx) => {
+              const isActiveToday = day.isToday;
+              const isCompleted = day.active;
+              
+              // Base styling for inactive day: dark neutral (#171A22) with low contrast border
+              let cellBg = '#171A22';
+              let cellBorder = '1px solid rgba(255, 255, 255, 0.05)';
+              let cellColor = 'var(--text-muted)';
+              let cellTextWeight = 500;
+              
+              if (isActiveToday) {
+                // Active day = PRIMARY accent (#D88BA0)
+                cellBg = 'rgba(216, 139, 160, 0.2)';
+                cellBorder = '1.5px solid var(--primary)';
+                cellColor = 'var(--primary)';
+                cellTextWeight = 700;
+              } else if (isCompleted) {
+                // Completed day = subtle filled state
+                cellBg = 'rgba(216, 139, 160, 0.12)';
+                cellBorder = '1px solid rgba(216, 139, 160, 0.25)';
+                cellColor = 'var(--primary)';
+                cellTextWeight = 700;
+              }
+              
+              return (
+                <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                  {/* Square cell */}
+                  <div style={{
+                    width: '100%',
+                    aspectRatio: '1',
+                    borderRadius: '8px',
+                    background: cellBg,
+                    border: cellBorder,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '11px',
+                    color: cellColor,
+                    fontWeight: cellTextWeight,
+                    transition: 'all 0.2s ease',
+                    boxSizing: 'border-box'
+                  }}>
+                    {isCompleted ? '✓' : ''}
+                  </div>
+                  {/* Single day label */}
+                  <span style={{
+                    fontSize: '10px',
+                    color: isActiveToday ? 'var(--primary)' : isCompleted ? 'var(--text-primary)' : 'var(--text-muted)',
+                    fontWeight: isActiveToday || isCompleted ? 700 : 500,
+                    textAlign: 'center',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    {day.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* ─── 5. Improve Again Section ─── */}
-      {improveAgainMission && (
-        <div className="glass-card" style={{ border: '1px solid rgba(212, 175, 55, 0.08)', display: 'flex', gap: '14px', alignItems: 'center', marginTop: '16px' }}>
-          <div style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '10px',
-            background: 'rgba(212, 175, 55, 0.08)',
+      {/* ─── ABOUT BUTTON ─── */}
+      <div style={{ padding: '0 16px', marginTop: '24px' }}>
+        <button
+          onClick={(e) => handleRippleClick(e, onOpenAbout)}
+          className="btn-secondary btn-tactile-press"
+          style={{
+            width: '100%',
+            padding: '12px 16px',
+            borderRadius: '16px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#D4AF37'
-          }}>
-            <History size={18} />
-          </div>
-          <div style={{ flex: 1 }}>
-            <h4 style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 600 }}>Improve Again</h4>
-            <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
-              Revisit "{improveAgainMission.title}" to increase your stars.
-            </p>
-          </div>
-          <button
-            onClick={() => onSelectMission(improveAgainMission)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#D4AF37',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center'
-            }}
-          >
-            <ChevronRight size={20} />
-          </button>
-        </div>
-      )}
+            gap: '8px',
+            border: '1px solid rgba(255, 255, 255, 0.06)',
+            background: 'var(--surface)',
+            boxShadow: 'var(--shadow-sm)',
+            cursor: 'pointer'
+          }}
+        >
+          <span style={{ fontSize: '16px' }}>ℹ️</span>
+          <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: '0.5px' }}>
+            About Application & Developer Info
+          </span>
+        </button>
+      </div>
     </div>
   );
 };

@@ -314,6 +314,7 @@ export const App: React.FC = () => {
             onSelectMission={handleSelectMission}
             onSelectDailyChallenge={handleSelectDailyChallenge}
             dailyChallengeCount={dailyChallengeCount}
+            onOpenAbout={() => setShowAboutModal(true)}
           />
         );
       case 'journey':
@@ -341,7 +342,6 @@ export const App: React.FC = () => {
       {showSplash ? (
         <SplashScreen onFinished={() => setShowSplash(false)} />
       ) : (
-        /* Dynamic Theme Mapping to outer frame based on current user level status */
         <div className="phone-simulator-frame">
           {/* Ambient Glows */}
           <div className="ambient-glow-top"></div>
@@ -351,30 +351,56 @@ export const App: React.FC = () => {
           {/* Smartphone Status Bar Header */}
           <header className="simulator-status-bar">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span>9:41</span>
               {syncStatus === 'syncing' ? (
                 <RefreshCw size={10} className="spin-anim" style={{ color: 'var(--primary)' }} />
               ) : (
-                <span style={{ fontSize: '9px', background: 'rgba(212,175,55,0.1)', color: '#D4AF37', padding: '2px 6px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                <span style={{ fontSize: '9px', background: 'rgba(216, 139, 160, 0.12)', color: 'var(--primary)', border: '1px solid rgba(216, 139, 160, 0.2)', padding: '2px 8px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '2px', fontWeight: 700 }}>
                   <CloudCheck size={8} /> Synced
                 </span>
               )}
             </div>
             
             {/* Right Status utilities */}
-            <div className="simulator-status-icons" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ marginRight: '4px' }}>📶 🔋 100%</span>
+            <div className="simulator-status-icons" style={{ display: 'flex', alignItems: 'center', gap: '8px', zIndex: 1000 }}>
               <button
                 onClick={() => setShowAboutModal(true)}
-                className="debug-toggle-btn"
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                className="btn-tactile-press"
+                style={{
+                  width: '26px',
+                  height: '26px',
+                  borderRadius: '50%',
+                  background: 'rgba(255, 255, 255, 0.03)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  color: '#A7B0C0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  padding: 0
+                }}
                 title="About SpeakFlow"
               >
-                <Info size={11} />
+                <Info size={12} />
               </button>
               <button
                 onClick={() => setShowDebug(true)}
-                className="debug-toggle-btn"
+                className="btn-tactile-press"
+                style={{
+                  width: '26px',
+                  height: '26px',
+                  borderRadius: '50%',
+                  background: 'rgba(255, 255, 255, 0.03)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  color: '#A7B0C0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  padding: 0,
+                  fontSize: '11px'
+                }}
                 title="Open Debug Panel"
               >
                 ⚙️
@@ -395,16 +421,16 @@ export const App: React.FC = () => {
           {/* Level Promotion Up celebratory banners */}
           {unlockedLevelBanner && (
             <div className="level-up-overlay">
-              <div className="level-up-card glass-card" style={{ padding: '30px 20px', textAlign: 'center', border: '2px solid #D4AF37' }}>
-                <div style={{ fontSize: '48px', marginBottom: '16px', animation: 'bounce-nav 0.8s infinite' }}>🎉</div>
-                <h2 style={{ fontSize: '24px', color: '#D4AF37', fontWeight: 800, fontFamily: 'Outfit' }}>
-                  Level Tier Unlocked!
+              <div className="level-up-card glass-card" style={{ padding: '30px 20px', textAlign: 'center', border: '1px solid rgba(255, 255, 255, 0.06)', background: 'var(--surface)', borderRadius: '24px', boxShadow: '0 20px 50px rgba(0,0,0,0.7)' }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎉</div>
+                <h2 style={{ fontSize: '24px', color: 'var(--primary)', fontWeight: 700, fontFamily: 'Manrope' }}>
+                  Level Tier Unlocked
                 </h2>
-                <h3 style={{ fontSize: '18px', color: 'var(--text-primary)', margin: '8px 0 16px', textTransform: 'capitalize' }}>
+                <h3 style={{ fontSize: '18px', color: '#FFFFFF', margin: '8px 0 16px', textTransform: 'capitalize' }}>
                   Welcome to {unlockedLevelBanner} Journeys
                 </h3>
-                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.4', marginBottom: '24px' }}>
-                  You have unlocked new environments and faster speed target objectives!
+                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '24px' }}>
+                  You have unlocked new environments and faster speed target objectives. Keep pushing your limits.
                 </p>
                 <button
                   className="btn-premium"
@@ -430,7 +456,7 @@ export const App: React.FC = () => {
             />
           )}
 
-          {/* Elegant Scrollable Golden-Metallic About Modal */}
+          {/* Elegant Scrollable Midnight About Modal */}
           {showAboutModal && (
             <div className="modal-backdrop" style={{ zIndex: 1100 }} onClick={() => setShowAboutModal(false)}>
               <div 
@@ -440,10 +466,10 @@ export const App: React.FC = () => {
                   width: '360px',
                   maxHeight: '600px',
                   overflowY: 'auto',
-                  border: '2px solid #D4AF37',
-                  background: '#0a0e14',
-                  borderRadius: '20px',
-                  boxShadow: 'inset 0 0 10px rgba(212, 175, 55, 0.1), 0 12px 40px rgba(0,0,0,0.85)',
+                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                  background: 'var(--surface)',
+                  borderRadius: '24px',
+                  boxShadow: '0 20px 50px rgba(0, 0, 0, 0.85)',
                   padding: '24px 20px',
                   position: 'relative'
                 }}
@@ -456,11 +482,17 @@ export const App: React.FC = () => {
                     position: 'absolute',
                     top: '16px',
                     right: '16px',
-                    background: 'none',
-                    border: 'none',
-                    color: '#D4AF37',
-                    fontSize: '18px',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    borderRadius: '50%',
+                    width: '26px',
+                    height: '26px',
+                    color: '#A7B0C0',
+                    fontSize: '12px',
                     cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     fontWeight: 700
                   }}
                 >
@@ -470,11 +502,10 @@ export const App: React.FC = () => {
                 {/* Heading */}
                 <h2 style={{
                   fontSize: '20px',
-                  fontWeight: 800,
-                  color: '#D4AF37',
+                  fontWeight: 700,
+                  color: 'var(--primary)',
                   textAlign: 'center',
-                  fontFamily: 'Outfit',
-                  textShadow: '0 0 5px rgba(212, 175, 55, 0.4)',
+                  fontFamily: 'Manrope',
                   marginBottom: '20px',
                   textTransform: 'uppercase',
                   letterSpacing: '1px'
@@ -483,11 +514,11 @@ export const App: React.FC = () => {
                 </h2>
 
                 {/* Scrollable Contents */}
-                <div style={{ color: '#E0E0E0', fontSize: '12.5px', lineHeight: '1.6', display: 'flex', flexDirection: 'column', gap: '18px', textAlign: 'left' }}>
+                <div style={{ color: '#A7B0C0', fontSize: '13px', lineHeight: '1.6', display: 'flex', flexDirection: 'column', gap: '18px', textAlign: 'left' }}>
                   
                   <div>
-                    <h3 style={{ fontSize: '14px', color: '#D4AF37', fontWeight: 700, marginBottom: '6px', fontFamily: 'Outfit' }}>
-                      Welcome to SpeakFlow!
+                    <h3 style={{ fontSize: '14px', color: '#FFFFFF', fontWeight: 700, marginBottom: '6px', fontFamily: 'Manrope' }}>
+                      Welcome to SpeakFlow
                     </h3>
                     <p>
                       SpeakFlow Practitioner ek aisa platform hai jise English speaking practice ko aasan, mazedaar, aur sabhi ke liye accessible banane ke vision ke saath banaya gaya hai. Humara maqsad hai aapko ek aisa offline-first environment dena, jahan aap bina kisi internet ki chinta ke apne communication skills ko behtar bana sakein.
@@ -495,7 +526,7 @@ export const App: React.FC = () => {
                   </div>
 
                   <div>
-                    <h3 style={{ fontSize: '14px', color: '#D4AF37', fontWeight: 700, marginBottom: '6px', fontFamily: 'Outfit' }}>
+                    <h3 style={{ fontSize: '14px', color: '#FFFFFF', fontWeight: 700, marginBottom: '6px', fontFamily: 'Manrope' }}>
                       Humne yeh app kyun banayi?
                     </h3>
                     <p>
@@ -504,12 +535,12 @@ export const App: React.FC = () => {
                   </div>
 
                   <div>
-                    <h3 style={{ fontSize: '14px', color: '#D4AF37', fontWeight: 700, marginBottom: '6px', fontFamily: 'Outfit' }}>
-                      Iske features aur fayde:
+                    <h3 style={{ fontSize: '14px', color: '#FFFFFF', fontWeight: 700, marginBottom: '6px', fontFamily: 'Manrope' }}>
+                      Iske features aur fayde
                     </h3>
                     <ul style={{ paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '6px', listStyleType: 'disc' }}>
-                      <li><strong>Offline Accessibility:</strong> Internet ki zarurat nahi, aap kaahin bhi aur kabhi bhi practice kar sakte hain.</li>
-                      <li><strong>Gamified Journey:</strong> "Snake Road" ke zariye Jungle se City tak ka safar, jo aapki learning ko boring nahi hone deta.</li>
+                      <li><strong>Offline Accessibility:</strong> Internet ki zarurat nahi, aap kahin bhi aur kabhi bhi practice kar sakte hain.</li>
+                      <li><strong>Gamified Journey:</strong> Winding progress map ke zariye Jungle se City tak ka safar, jo aapki learning ko engaging banaye rakhta hai.</li>
                       <li><strong>Progress Tracking:</strong> Daily practice, WPM (Words Per Minute), aur milestones ko track karke apni growth dekhein.</li>
                       <li><strong>Voice Diary:</strong> Apne khayalat record karein aur confidence build karein.</li>
                       <li><strong>Trophy Room:</strong> Achievements unlock karein aur apne speaking habits ko reward karein.</li>
@@ -517,7 +548,7 @@ export const App: React.FC = () => {
                   </div>
 
                   <div>
-                    <h3 style={{ fontSize: '14px', color: '#D4AF37', fontWeight: 700, marginBottom: '6px', fontFamily: 'Outfit' }}>
+                    <h3 style={{ fontSize: '14px', color: '#FFFFFF', fontWeight: 700, marginBottom: '6px', fontFamily: 'Manrope' }}>
                       Kaise use karein?
                     </h3>
                     <ol style={{ paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '6px', listStyleType: 'decimal' }}>
@@ -529,37 +560,37 @@ export const App: React.FC = () => {
                   </div>
 
                   <div>
-                    <h3 style={{ fontSize: '14px', color: '#D4AF37', fontWeight: 700, marginBottom: '6px', fontFamily: 'Outfit' }}>
+                    <h3 style={{ fontSize: '14px', color: '#FFFFFF', fontWeight: 700, marginBottom: '6px', fontFamily: 'Manrope' }}>
                       Aage ka safar (Phase 1 & Future)
                     </h3>
                     <p>
                       Yeh hamari application ka First Phase hai. Hum is safar ki shuruat kar rahe hain aur aapka support hamare liye sabse bada motivation hai.
                     </p>
                     <p style={{ marginTop: '8px' }}>
-                      Agar aapko lagta hai ki ismein kuch aur behtareen features hone chahiye, toh humein zaroor batayein! Aap apne sujhav (suggestions) humein email kar sakte hain. Agar aapka support aur pyaar milta raha, toh hum bahut jald Phase 2 layenge, jisme aur bhi advanced features aur behtar user-friendly experience hoga.
+                      Agar aapko lagta hai ki ismein kuch aur behtareen features hone chahiye, toh humein zaroor batayein. Aap apne sujhav (suggestions) humein email kar sakte hain. Agar aapka support aur pyaar milta raha, toh hum bahut jald Phase 2 layenge, jisme aur bhi advanced features aur behtar user-friendly experience hoga.
                     </p>
                   </div>
 
                   {/* Footer contact details */}
                   <div style={{
-                    background: 'rgba(212, 175, 55, 0.05)',
-                    border: '1px solid rgba(212, 175, 55, 0.15)',
-                    borderRadius: '12px',
-                    padding: '12px 14px',
-                    marginTop: '8px',
-                    textAlign: 'center',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '4px'
-                  }}>
-                    <span style={{ fontSize: '11px', color: '#B0B0B0' }}>Contact Us:</span>
-                    <a href="mailto:sghouri72@gmail.com" style={{ fontSize: '13px', color: '#D4AF37', fontWeight: 700, textDecoration: 'none' }}>
-                      sghouri72@gmail.com
-                    </a>
-                    <span style={{ fontSize: '10px', color: '#B0B0B0', marginTop: '6px' }}>
+                    background: 'rgba(216, 139, 160, 0.02)',
+                  border: '1px dashed rgba(216, 139, 160, 0.15)',
+                  borderRadius: '16px',
+                  padding: '12px 14px',
+                  marginTop: '8px',
+                  textAlign: 'center',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '4px'
+                }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Contact Us:</span>
+                  <a href="mailto:sghouri72@gmail.com" style={{ fontSize: '13px', color: 'var(--primary)', fontWeight: 700, textDecoration: 'none' }}>
+                    sghouri72@gmail.com
+                  </a>
+                    <span style={{ fontSize: '10px', color: '#A7B0C0', marginTop: '6px' }}>
                       Developed with ❤️ by:
                     </span>
-                    <strong style={{ fontSize: '12px', color: '#FFF' }}>
+                    <strong style={{ fontSize: '13px', color: '#FFFFFF' }}>
                       Ghouri Sohel Khan
                     </strong>
                   </div>

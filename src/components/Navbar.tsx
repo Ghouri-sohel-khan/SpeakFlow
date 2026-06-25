@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Map, Mic, BarChart2, Trophy } from 'lucide-react';
+import { Home, Map, Mic, BarChart2, Lock } from 'lucide-react';
 
 interface NavbarProps {
   activeTab: string;
@@ -12,7 +12,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
     { id: 'journey', label: 'Journey', icon: Map },
     { id: 'diary', label: 'Diary', icon: Mic },
     { id: 'progress', label: 'Progress', icon: BarChart2 },
-    { id: 'achievements', label: 'Badges', icon: Trophy }
+    { id: 'achievements', label: 'Vault', icon: Lock }
   ];
 
   return (

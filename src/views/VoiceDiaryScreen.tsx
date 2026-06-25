@@ -3,7 +3,6 @@ import { Play, Pause, Mic, Square, Save, Trash2, Calendar, Shuffle } from 'lucid
 import { dbService } from '../services/db';
 import type { VoiceDiaryEntry } from '../services/db';
 
-// Offline library of diverse, simple speaking prompts
 const LOCAL_SPEAKING_PROMPTS = [
   "Speak about your city and what makes it unique.",
   "Describe your favorite movie character and why you admire them.",
@@ -63,7 +62,7 @@ const LOCAL_SPEAKING_PROMPTS = [
   "If you could tell your younger self one thing, what would it be?",
   "Talk about a product or app you use every single day.",
   "Describe a time you laughed uncontrollably.",
-  "What is the best way to spend a daily rainy day, in your opinion."
+  "What is the best way to spend a rainy day, in your opinion."
 ];
 
 export const VoiceDiaryScreen: React.FC = () => {
@@ -138,15 +137,12 @@ export const VoiceDiaryScreen: React.FC = () => {
       mediaRecorder.onstop = () => {
         const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         setRecordedBlob(blob);
-        setNote(currentTopic); // Pre-populate the note input with the current prompt
+        setNote(currentTopic); 
       };
 
       mediaRecorder.start();
-      
-      // Start visualizer
       startVisualizer(stream);
 
-      // Start elapsed timer
       timerRef.current = setInterval(() => {
         setElapsedSeconds(prev => {
           if (prev >= targetDuration - 1) {
@@ -159,7 +155,6 @@ export const VoiceDiaryScreen: React.FC = () => {
 
     } catch (err) {
       console.warn('Microphone inaccessible. Falling back to simulated audio diary.', err);
-      // Fallback sine wave visualizer
       startMockVisualizer();
       setIsRecording(true);
       timerRef.current = setInterval(() => {
@@ -184,9 +179,8 @@ export const VoiceDiaryScreen: React.FC = () => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
     } else {
-      // Mock blob fallback
       setRecordedBlob(new Blob([], { type: 'audio/webm' }));
-      setNote(currentTopic); // Pre-populate the note input with the current prompt
+      setNote(currentTopic);
     }
   };
 
@@ -226,13 +220,14 @@ export const VoiceDiaryScreen: React.FC = () => {
       analyser.getByteFrequencyData(dataArray);
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const barWidth = (canvas.width / bufferLength) * 2;
+      const barWidth = (canvas.width / bufferLength) * 2.2;
       let x = 0;
 
       for (let i = 0; i < bufferLength; i++) {
-        const barHeight = (dataArray[i] / 255) * canvas.height * 0.9;
-        ctx.fillStyle = `rgba(212, 175, 55, ${0.4 + (barHeight / canvas.height)})`;
-        ctx.fillRect(x, canvas.height / 2 - barHeight / 2, barWidth - 4, barHeight);
+        const barHeight = (dataArray[i] / 255) * canvas.height * 0.85;
+        // Muted Rose visualizer wave
+        ctx.fillStyle = `rgba(216, 139, 160, ${0.35 + (barHeight / canvas.height)})`;
+        ctx.fillRect(x, canvas.height / 2 - barHeight / 2, barWidth - 3, barHeight);
         x += barWidth;
       }
     };
@@ -251,17 +246,17 @@ export const VoiceDiaryScreen: React.FC = () => {
       animationFrameIdRef.current = requestAnimationFrame(drawMock);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      ctx.strokeStyle = 'rgba(212, 175, 55, 0.7)';
-      ctx.lineWidth = 3;
+      ctx.strokeStyle = 'rgba(216, 139, 160, 0.7)';
+      ctx.lineWidth = 2.5;
       ctx.beginPath();
       
       for (let x = 0; x < canvas.width; x++) {
-        const y = canvas.height / 2 + Math.sin(x * 0.05 + phase) * 12 * Math.sin(phase * 0.15);
+        const y = canvas.height / 2 + Math.sin(x * 0.04 + phase) * 10 * Math.sin(phase * 0.12);
         if (x === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       }
       ctx.stroke();
-      phase += 0.15;
+      phase += 0.12;
     };
     drawMock();
   };
@@ -277,12 +272,11 @@ export const VoiceDiaryScreen: React.FC = () => {
         note: finalNote
       });
       
-      // Reset layout
       setRecordedBlob(null);
       setNote('');
       setElapsedSeconds(0);
       loadDiaryEntries();
-      shuffleTopic(); // Choose another random topic for the next round
+      shuffleTopic(); 
     } catch (err) {
       console.error(err);
     }
@@ -326,44 +320,52 @@ export const VoiceDiaryScreen: React.FC = () => {
     return new Date(ts).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   };
 
+  // Concentric ring mathematics (radius = 46, circumference = 2 * Math.PI * 46 = 289)
+  const ringCircumference = 289;
+  const ringStrokeOffset = isRecording 
+    ? ringCircumference - (elapsedSeconds / targetDuration) * ringCircumference 
+    : ringCircumference;
+
   return (
     <div style={{ padding: '16px 0' }}>
-      <div style={{ textAlign: 'center', padding: '0 16px', marginBottom: '20px' }}>
-        <h2 style={{ fontSize: '22px', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--text-primary)' }}>
+      {/* Screen Title */}
+      <div style={{ textAlign: 'center', padding: '0 16px', marginBottom: '16px' }}>
+        <h2 style={{ fontSize: '22px', fontWeight: 700, fontFamily: 'Manrope', color: 'var(--text-primary)' }}>
           Voice Diary
         </h2>
-        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-          Free speaking mode to track confidence and vocabulary growth
+        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+          Free speaking workouts to capture thoughts and track confidence growth
         </p>
       </div>
 
-      {/* Practice Topic Card */}
+      {/* 1. PRACTICE TOPIC (Linear-style clean card) */}
       {!isRecording && !recordedBlob && (
-        <div className="glass-card anim-slide-up" style={{
-          padding: '20px 18px',
-          background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.06) 0%, rgba(20, 18, 28, 0.85) 100%)',
-          border: '1px solid rgba(212, 175, 55, 0.2)',
+        <div className="card-primary" style={{
+          padding: '20px',
+          background: 'var(--card-gradient)',
+          border: '1px solid var(--border-primary)',
+          boxShadow: 'var(--shadow-md), var(--shadow-primary)',
           marginBottom: '16px'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <div className="gold-tag" style={{ textTransform: 'uppercase', letterSpacing: '1px', fontSize: '9px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <div className="gold-tag" style={{ textTransform: 'uppercase', letterSpacing: '0.8px', fontSize: '9px', background: 'rgba(216, 139, 160, 0.1)', color: 'var(--primary)', borderColor: 'var(--border-primary)' }}>
               💡 Practice Topic
             </div>
             <button
               onClick={shuffleTopic}
-              className="shuffle-button-hover"
+              className="shuffle-button-hover btn-tactile-press"
               style={{
-                background: 'rgba(212, 175, 55, 0.08)',
-                border: '1px solid rgba(212, 175, 55, 0.2)',
+                background: 'rgba(255, 255, 255, 0.04)',
+                border: '1px solid var(--border)',
                 borderRadius: '50%',
                 width: '32px',
                 height: '32px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#D4AF37',
+                color: 'var(--primary)',
                 cursor: 'pointer',
-                transition: 'all 0.3s ease',
+                transition: 'all 0.2s',
               }}
               title="Shuffle Topic"
             >
@@ -374,23 +376,24 @@ export const VoiceDiaryScreen: React.FC = () => {
           <p style={{
             fontSize: '18px',
             fontWeight: 700,
-            fontFamily: 'Outfit',
+            fontFamily: 'Manrope',
             color: 'var(--text-primary)',
             lineHeight: '1.45',
             margin: '0',
+            textAlign: 'left'
           }}>
             "{currentTopic}"
           </p>
         </div>
       )}
 
-      {/* Recording Studio Card */}
-      <div className="glass-card" style={{ padding: '20px 16px', background: 'rgba(20, 18, 28, 0.82)', border: '1px solid rgba(212, 175, 55, 0.12)' }}>
-        <h4 style={{ fontSize: '10px', color: '#D4AF37', textTransform: 'uppercase', marginBottom: '16px', fontWeight: 700, letterSpacing: '1.5px', textAlign: 'center' }}>
+      {/* 2. RECORDING STUDIO (Hero Concentric Control) */}
+      <div className="card-secondary" style={{ padding: '20px 16px', background: 'rgba(14, 26, 43, 0.45)', border: '1px solid var(--border)' }}>
+        <h4 style={{ fontSize: '10px', color: 'var(--primary)', textTransform: 'uppercase', marginBottom: '16px', fontWeight: 700, letterSpacing: '1.5px', textAlign: 'center' }}>
           Recording Studio
         </h4>
 
-        {/* Target Duration Selectors */}
+        {/* Target Duration segmented controller */}
         {!isRecording && !recordedBlob && (
           <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '20px' }}>
             {([30, 60, 90]).map(sec => (
@@ -398,17 +401,17 @@ export const VoiceDiaryScreen: React.FC = () => {
                 key={sec}
                 onClick={() => setTargetDuration(sec)}
                 style={{
-                  width: '76px',
+                  width: '80px',
                   padding: '8px 0',
                   borderRadius: '12px',
-                  border: '1px solid rgba(212, 175, 55, 0.15)',
+                  border: targetDuration === sec ? '1px solid var(--primary)' : '1px solid var(--border)',
                   fontSize: '11px',
                   fontWeight: 700,
-                  background: targetDuration === sec ? 'linear-gradient(135deg, #D4AF37, #A88A1E)' : 'rgba(212, 175, 55, 0.03)',
-                  color: targetDuration === sec ? '#0d0d12' : 'var(--text-secondary)',
+                  background: targetDuration === sec ? 'rgba(216, 139, 160, 0.12)' : 'rgba(255,255,255,0.01)',
+                  color: targetDuration === sec ? 'var(--primary)' : 'var(--text-secondary)',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
-                  fontFamily: 'Outfit'
+                  fontFamily: 'Manrope'
                 }}
               >
                 {sec}s Limit
@@ -417,146 +420,211 @@ export const VoiceDiaryScreen: React.FC = () => {
           </div>
         )}
 
-        {/* Large Centered Counter */}
+        {/* Dynamic Concentric Circular Timer + Central Record Button */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', height: '140px', margin: '14px 0 20px' }}>
+          {/* Concentric Progress Ring */}
+          <div style={{ position: 'relative', width: '120px', height: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="120" height="120" viewBox="0 0 120 120" style={{ position: 'absolute', transform: 'rotate(-90deg)', top: 0, left: 0 }}>
+              {/* Background ring */}
+              <circle
+                cx="60"
+                cy="60"
+                r="46"
+                fill="none"
+                stroke="rgba(255, 255, 255, 0.03)"
+                strokeWidth="5"
+              />
+              {/* Active timing ring */}
+              <circle
+                cx="60"
+                cy="60"
+                r="46"
+                fill="none"
+                stroke="url(#studioTimerGradient)"
+                strokeWidth="5"
+                strokeDasharray={ringCircumference}
+                strokeDashoffset={ringStrokeOffset}
+                strokeLinecap="round"
+                style={{ transition: 'stroke-dashoffset 0.3s linear, stroke 0.3s' }}
+              />
+              <defs>
+                <linearGradient id="studioTimerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#D88BA0" />
+                  <stop offset="100%" stopColor="#BC7287" />
+                </linearGradient>
+              </defs>
+            </svg>
+
+            {/* Central Record Control Button */}
+            {isRecording ? (
+              <button
+                onClick={stopRecording}
+                className="record-button-active btn-tactile-press"
+                style={{
+                  width: '78px',
+                  height: '78px',
+                  borderRadius: '50%',
+                  border: 'none',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  zIndex: 10,
+                  gap: '4px'
+                }}
+              >
+                <Square size={16} fill="#FFF" style={{ color: '#FFF' }} />
+                <span style={{ fontSize: '9px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: 'Manrope' }}>Stop</span>
+              </button>
+            ) : !recordedBlob ? (
+              <button
+                onClick={startRecording}
+                className="record-button-inactive btn-tactile-press"
+                style={{
+                  width: '78px',
+                  height: '78px',
+                  borderRadius: '50%',
+                  background: 'rgba(216, 139, 160, 0.05)',
+                  border: '1.5px solid var(--primary)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--primary)',
+                  cursor: 'pointer',
+                  zIndex: 10,
+                  boxShadow: 'var(--shadow-sm)',
+                  transition: 'all 0.3s ease',
+                  gap: '4px'
+                }}
+              >
+                <Mic size={18} />
+                <span style={{ fontSize: '9px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: 'Manrope' }}>Start</span>
+              </button>
+            ) : (
+              /* Success complete check */
+              <div style={{
+                width: '78px',
+                height: '78px',
+                borderRadius: '50%',
+                background: 'var(--green-gradient)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '28px',
+                boxShadow: 'var(--shadow-sm)',
+                zIndex: 10
+              }}>
+                ✓
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Counter readout */}
         <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-          <span style={{ fontSize: '28px', fontWeight: 800, fontFamily: 'Outfit', color: isRecording ? '#D4AF37' : 'var(--text-secondary)' }}>
+          <span style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'Manrope', color: isRecording ? 'var(--primary)' : 'var(--text-secondary)' }}>
             {isRecording ? formatTime(elapsedSeconds) : `${targetDuration}s`}
           </span>
           <p style={{ fontSize: '9px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '2px' }}>
-            {isRecording ? 'Speaking Time' : 'Practice Target'}
+            {isRecording ? 'Elapsed speaking time' : 'Target timer limit'}
           </p>
         </div>
 
-        {/* Centered Trigger Controls */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', margin: '14px 0 20px' }}>
-          {isRecording ? (
-            <button
-              onClick={stopRecording}
-              style={{
-                width: '84px',
-                height: '84px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #D4AF37 0%, #A88A1E 100%)',
-                border: 'none',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#0d0d12',
-                cursor: 'pointer',
-                boxShadow: '0 0 30px rgba(212, 175, 55, 0.6)',
-                animation: 'pulse-record 1.5s infinite alternate',
-                transition: 'all 0.3s ease',
-                gap: '4px'
-              }}
-            >
-              <Square size={18} fill="#0d0d12" />
-              <span style={{ fontSize: '9px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Stop</span>
-            </button>
-          ) : !recordedBlob ? (
-            <button
-              onClick={startRecording}
-              className="record-button-hover"
-              style={{
-                width: '84px',
-                height: '84px',
-                borderRadius: '50%',
-                background: 'rgba(212, 175, 55, 0.05)',
-                border: '2px solid #D4AF37',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#D4AF37',
-                cursor: 'pointer',
-                boxShadow: '0 0 15px rgba(212, 175, 55, 0.1)',
-                transition: 'all 0.3s ease',
-                gap: '4px'
-              }}
-            >
-              <Mic size={22} />
-              <span style={{ fontSize: '9px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Start</span>
-            </button>
-          ) : (
-            /* Review & Save Phase */
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', width: '100%' }}>
-              <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)', borderRadius: '16px', padding: '12px 14px' }}>
-                <label style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', display: 'block', marginBottom: '6px', fontWeight: 700, letterSpacing: '0.5px' }}>
-                  Diary Note (Pre-populated)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g., Practiced my speaking routine..."
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  style={{
-                    width: '100%',
-                    background: 'none',
-                    border: 'none',
-                    borderBottom: '1.5px solid var(--border)',
-                    outline: 'none',
-                    color: '#fff',
-                    padding: '4px 0',
-                    fontSize: '13px',
-                    fontFamily: 'Inter'
-                  }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button className="btn-secondary" style={{ flex: 1, padding: '10px' }} onClick={() => setRecordedBlob(null)}>
-                  Discard
-                </button>
-                <button className="btn-premium" style={{ flex: 1, padding: '10px' }} onClick={saveDiary}>
-                  <Save size={14} /> Save Diary
-                </button>
-              </div>
+        {/* Review & Save Phase Dialogue */}
+        {recordedBlob && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', width: '100%', marginTop: '10px' }}>
+            <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid var(--border)', borderRadius: '16px', padding: '12px 14px', textAlign: 'left' }}>
+              <label style={{ fontSize: '9px', color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: '6px', fontWeight: 700, letterSpacing: '0.5px' }}>
+                Diary Entry Notes
+              </label>
+              <input
+                type="text"
+                placeholder="Name your diary entry..."
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                style={{
+                  width: '100%',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: '1px solid var(--primary)',
+                  outline: 'none',
+                  color: '#FFFFFF',
+                  padding: '4px 0',
+                  fontSize: '13px',
+                  fontFamily: 'Inter'
+                }}
+              />
             </div>
-          )}
-        </div>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button className="btn-secondary" style={{ flex: 1, padding: '10px' }} onClick={() => setRecordedBlob(null)}>
+                Discard
+              </button>
+              <button className="btn-premium" style={{ flex: 1, padding: '10px' }} onClick={saveDiary}>
+                <Save size={14} /> Save Diary
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Canvas Visualizer */}
         {(isRecording || recordedBlob) && (
-          <canvas ref={canvasRef} className="waveform-canvas" width="380" height="60" style={{ background: 'rgba(0,0,0,0.12)', borderRadius: '14px' }}></canvas>
+          <canvas ref={canvasRef} className="waveform-canvas" width="380" height="60" style={{ background: 'rgba(0,0,0,0.15)', borderRadius: '14px', marginTop: '8px' }}></canvas>
         )}
       </div>
 
-      {/* Historical List */}
+      {/* 3. HISTORICAL LIST (Clean Minimal Cards) */}
       <div style={{ padding: '0 16px', marginTop: '24px' }}>
-        <h4 style={{ fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '12px', fontWeight: 700 }}>
+        <h4 style={{ fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '12px', fontWeight: 700, textAlign: 'left' }}>
           Diary History ({diaryEntries.length})
         </h4>
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>Loading history...</div>
         ) : diaryEntries.length === 0 ? (
-          <div className="glass-card" style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '24px', margin: 0 }}>
-            Your voice diary is empty. Start your first speaking workout above!
+          /* Motivating empty state to take action */
+          <div className="card-secondary" style={{
+            textAlign: 'center',
+            color: 'var(--text-secondary)',
+            padding: '30px 24px',
+            margin: 0,
+            background: 'rgba(14, 26, 43, 0.2)',
+            border: '1.5px dashed var(--border)'
+          }}>
+            <span style={{ fontSize: '32px', display: 'block', marginBottom: '8px', animation: 'float-trophy 2s infinite alternate ease-in-out' }}>🎙️</span>
+            <h4 style={{ color: '#FFFFFF', fontSize: '15px', fontWeight: 700, marginBottom: '4px' }}>
+              Your Diary is Waiting
+            </h4>
+            <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: '1.4' }}>
+              Aapka personal speaking workspace khali hai. Roz ek topic par speaking workout record karke badlaav dekhein.
+            </p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {diaryEntries.map((entry) => (
-              <div key={entry.id} className="glass-card" style={{ margin: 0, padding: '14px 16px' }}>
+              <div key={entry.id} className="card-minimal" style={{ margin: 0, padding: '14px 16px', border: '1px solid var(--border)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-muted)' }}>
-                    <Calendar size={14} />
+                    <Calendar size={14} style={{ color: 'var(--primary)' }} />
                     <span style={{ fontSize: '10px', fontWeight: 600 }}>{formatDate(entry.timestamp)}</span>
                   </div>
                   <button
                     onClick={() => deleteEntry(entry.id)}
-                    style={{ background: 'none', border: 'none', color: 'rgba(239, 68, 68, 0.6)', cursor: 'pointer' }}
+                    style={{ background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer', opacity: 0.7 }}
                   >
                     <Trash2 size={14} />
                   </button>
                 </div>
 
-                <p style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 500, margin: '8px 0 12px', lineHeight: '1.4' }}>
+                <p style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 500, margin: '8px 0 12px', lineHeight: '1.45', textAlign: 'left' }}>
                   "{entry.note}"
                 </p>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.04)', paddingTop: '10px' }}>
                   <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                    Duration: <strong>{entry.duration} seconds</strong>
+                    Duration: <strong style={{ color: 'var(--text-secondary)' }}>{entry.duration} seconds</strong>
                   </span>
                   
                   <button
@@ -567,8 +635,8 @@ export const VoiceDiaryScreen: React.FC = () => {
                       border: 'none',
                       fontSize: '11px',
                       fontWeight: 700,
-                      background: playingId === entry.id ? '#ef4444' : 'linear-gradient(135deg, #D4AF37, #A88A1E)',
-                      color: playingId === entry.id ? '#fff' : '#0d0d12',
+                      background: playingId === entry.id ? 'var(--danger)' : 'rgba(216, 139, 160, 0.12)',
+                      color: playingId === entry.id ? '#FFFFFF' : 'var(--primary)',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
@@ -581,7 +649,7 @@ export const VoiceDiaryScreen: React.FC = () => {
                       </>
                     ) : (
                       <>
-                        <Play size={10} fill="#fff" /> Playback
+                        <Play size={10} fill="var(--primary)" /> Playback
                       </>
                     )}
                   </button>

@@ -382,7 +382,7 @@ export const TeleprompterScreen: React.FC<TeleprompterScreenProps> = ({
         for (let i = 0; i < bufferLength; i++) {
           const barHeight = (dataArray[i] / 255) * canvas.height * 0.9;
           
-          ctx.fillStyle = `rgba(212, 175, 55, ${0.4 + (barHeight / canvas.height)})`;
+          ctx.fillStyle = `rgba(216, 139, 160, ${0.4 + (barHeight / canvas.height)})`;
           ctx.fillRect(x, canvas.height / 2 - barHeight / 2, barWidth - 4, barHeight);
           
           x += barWidth;
@@ -392,7 +392,7 @@ export const TeleprompterScreen: React.FC<TeleprompterScreenProps> = ({
       draw();
     } catch (err) {
       console.warn('Microphone permission denied or unsupported. Falling back to mock voice recorder.', err);
-      // Fallback visualizer: draw mock sine wave
+      // Fallback visualizer: draw mock rose wave
       startMockVisualizer();
     }
   };
@@ -409,7 +409,7 @@ export const TeleprompterScreen: React.FC<TeleprompterScreenProps> = ({
       animationFrameIdRef.current = requestAnimationFrame(drawMock);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      ctx.strokeStyle = 'rgba(212, 175, 55, 0.7)';
+      ctx.strokeStyle = 'rgba(216, 139, 160, 0.7)';
       ctx.lineWidth = 3;
       ctx.beginPath();
       
@@ -565,7 +565,7 @@ export const TeleprompterScreen: React.FC<TeleprompterScreenProps> = ({
             alignItems: 'center',
             gap: '4px',
             fontSize: '13px',
-            fontWeight: 600,
+            fontWeight: 700,
             transition: 'color 0.2s ease',
             padding: '4px 8px',
             borderRadius: '8px'
@@ -577,7 +577,7 @@ export const TeleprompterScreen: React.FC<TeleprompterScreenProps> = ({
         </button>
         
         <div style={{ textAlign: 'center', maxWidth: '50%' }}>
-          <h3 style={{ fontSize: '14px', fontWeight: 600, fontFamily: 'Outfit', color: '#F8FAFC', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <h3 style={{ fontSize: '14px', fontWeight: 700, fontFamily: 'Manrope', color: '#F8FAFC', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {mission.title}
           </h3>
           <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '1px' }}>
@@ -596,7 +596,7 @@ export const TeleprompterScreen: React.FC<TeleprompterScreenProps> = ({
             alignItems: 'center',
             gap: '4px',
             fontSize: '13px',
-            fontWeight: 600,
+            fontWeight: 700,
             transition: 'color 0.2s ease',
             padding: '4px 8px',
             borderRadius: '8px'
@@ -629,7 +629,7 @@ export const TeleprompterScreen: React.FC<TeleprompterScreenProps> = ({
             fontSize: '11px',
             fontWeight: 700,
             background: selectedVariationIdx === 0 ? 'var(--primary)' : 'rgba(255,255,255,0.06)',
-            color: '#fff',
+            color: selectedVariationIdx === 0 ? '#0B0D12' : '#fff',
             cursor: isRecording ? 'not-allowed' : 'pointer'
           }}
         >
@@ -655,7 +655,7 @@ export const TeleprompterScreen: React.FC<TeleprompterScreenProps> = ({
               fontSize: '11px',
               fontWeight: 700,
               background: selectedVariationIdx === idx + 1 ? 'var(--primary)' : 'rgba(255,255,255,0.06)',
-              color: '#fff',
+              color: selectedVariationIdx === idx + 1 ? '#0B0D12' : '#fff',
               cursor: isRecording ? 'not-allowed' : 'pointer'
             }}
           >
@@ -680,7 +680,7 @@ export const TeleprompterScreen: React.FC<TeleprompterScreenProps> = ({
             border: '1px solid rgba(239, 68, 68, 0.45)',
             padding: '4px 10px',
             borderRadius: '20px',
-            fontFamily: 'Outfit',
+            fontFamily: 'Manrope',
             fontSize: '11px',
             fontWeight: 700,
             color: '#fca5a5',
@@ -788,10 +788,11 @@ export const TeleprompterScreen: React.FC<TeleprompterScreenProps> = ({
                 alignItems: 'center',
                 gap: '4px',
                 fontSize: '11px',
-                fontWeight: 600,
+                fontWeight: 700,
                 transition: 'all 0.2s ease',
                 padding: '4px 6px',
-                borderRadius: '6px'
+                borderRadius: '6px',
+                fontFamily: 'Manrope'
               }}
             >
               <Volume2 size={13} style={{ color: ambientEnabled ? 'var(--primary)' : '#64748B' }} />
@@ -844,7 +845,7 @@ export const TeleprompterScreen: React.FC<TeleprompterScreenProps> = ({
                     fontSize: '9px',
                     fontWeight: 700,
                     background: speedMultiplier === spd.mult ? 'var(--primary)' : 'none',
-                    color: speedMultiplier === spd.mult ? '#fff' : 'rgba(255,255,255,0.5)',
+                    color: speedMultiplier === spd.mult ? '#0B0D12' : 'rgba(255,255,255,0.5)',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease'
                   }}
@@ -901,12 +902,12 @@ export const TeleprompterScreen: React.FC<TeleprompterScreenProps> = ({
                 fontSize: '13px',
                 borderRadius: '12px',
                 height: '42px',
-                background: 'rgba(239, 68, 68, 0.15)',
-                border: '1px solid rgba(239, 68, 68, 0.3)',
-                color: '#ef4444'
+                background: 'rgba(255, 92, 117, 0.15)',
+                border: '1px solid rgba(255, 92, 117, 0.3)',
+                color: 'var(--danger)'
               }}
             >
-              <Square size={14} fill="#ef4444" /> Stop & Save
+              <Square size={14} fill="var(--danger)" /> Stop & Save
             </button>
           )}
         </div>
@@ -932,16 +933,16 @@ export const TeleprompterScreen: React.FC<TeleprompterScreenProps> = ({
           <div className="glass-card" style={{
             padding: '24px',
             borderRadius: '24px',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            background: 'rgba(15, 23, 42, 0.95)',
-            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
+            border: '1px solid var(--border)',
+            background: 'var(--surface)',
+            boxShadow: 'var(--shadow-lg)',
             textAlign: 'center',
             width: '100%',
             maxWidth: '320px',
             animation: 'pop-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards'
           }}>
             <div style={{ fontSize: '32px', marginBottom: '12px' }}>⚠️</div>
-            <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#fff', marginBottom: '8px', fontFamily: 'Outfit' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#fff', marginBottom: '8px', fontFamily: 'Manrope' }}>
               Leave this session?
             </h3>
             <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.6)', lineHeight: '1.5', marginBottom: '20px' }}>

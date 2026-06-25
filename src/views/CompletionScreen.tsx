@@ -322,7 +322,7 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
       display: 'flex',
       flexDirection: 'column',
       overflow: 'hidden',
-      background: 'linear-gradient(to bottom, #0d0c18 0%, #090810 100%)',
+      background: 'var(--bg-gradient)',
       position: 'relative'
     }}>
       {/* Dynamic Style injection for premium load animations */}
@@ -361,26 +361,26 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
         backdropFilter: 'blur(12px)',
         zIndex: 10
       }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(212, 175, 55, 0.1)', border: '1px solid rgba(212, 175, 55, 0.2)', padding: '4px 10px', borderRadius: '20px', marginBottom: '8px' }} className="anim-pop">
-          <Award size={14} style={{ color: '#D4AF37' }} />
-          <span style={{ fontSize: '11px', fontWeight: 800, color: '#D4AF37', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(67, 217, 163, 0.1)', border: '1px solid rgba(67, 217, 163, 0.2)', padding: '4px 10px', borderRadius: '20px', marginBottom: '8px' }} className="anim-pop">
+          <Award size={14} style={{ color: 'var(--success)' }} />
+          <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--success)', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
             Mission Complete
           </span>
         </div>
         
-        <h3 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'Outfit', margin: '0 0 6px' }}>
+        <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'Manrope', margin: '0 0 6px' }}>
           {mission.title}
         </h3>
 
         {/* Dynamic Rewards pills */}
         <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '6px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(212, 175, 55, 0.08)', padding: '3px 8px', borderRadius: '12px', border: '1px solid rgba(212, 175, 55, 0.12)' }}>
-            <Zap size={11} style={{ color: '#D4AF37' }} fill="#D4AF37" />
-            <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-primary)' }}>+{mission.xp} XP</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(244, 201, 93, 0.08)', padding: '3px 8px', borderRadius: '12px', border: '1px solid rgba(244, 201, 93, 0.12)' }}>
+            <Zap size={11} style={{ color: 'var(--secondary)' }} fill="var(--secondary)" />
+            <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-primary)' }}>+{mission.xp} XP</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(212, 175, 55, 0.08)', padding: '3px 8px', borderRadius: '12px', border: '1px solid rgba(212, 175, 55, 0.12)' }}>
-            <Coins size={11} style={{ color: '#D4AF37' }} fill="#D4AF37" />
-            <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-primary)' }}>+{mission.coins} Coins</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(244, 201, 93, 0.08)', padding: '3px 8px', borderRadius: '12px', border: '1px solid rgba(244, 201, 93, 0.12)' }}>
+            <Coins size={11} style={{ color: 'var(--secondary)' }} fill="var(--secondary)" />
+            <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-primary)' }}>+{mission.coins} Coins</span>
           </div>
         </div>
       </div>
@@ -415,7 +415,7 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
               margin: 0
             }}>
               <span style={{ fontSize: '32px', animation: 'bounce-nav 1s infinite' }}>🔓</span>
-              <h4 style={{ fontSize: '15px', fontWeight: 800, color: '#34d399', fontFamily: 'Outfit', margin: 0 }}>
+              <h4 style={{ fontSize: '15px', fontWeight: 700, color: '#34d399', fontFamily: 'Manrope', margin: 0 }}>
                 Custom Speaking Mode Unlocked!
               </h4>
               <p style={{ fontSize: '12px', color: '#e2e8f0', margin: 0, lineHeight: '1.4' }}>
@@ -425,14 +425,14 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
           )}
 
           {/* SECTION 1: REDESIGNED MASTERY CARD */}
-          <div className="glass-card anim-slide-up" style={{
+          <div className="card-secondary anim-slide-up" style={{
             padding: '24px 20px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            border: '1px solid rgba(251, 191, 36, 0.25)',
-            background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.06) 0%, rgba(15, 23, 42, 0.45) 100%)',
+            border: '1px solid var(--border)',
+            background: 'var(--surface)',
             margin: 0,
             borderRadius: '20px',
             gap: '12px',
@@ -446,8 +446,7 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
                   key={i}
                   style={{
                     fontSize: '28px',
-                    color: i < validatedStats.stars ? '#D4AF37' : 'rgba(245, 240, 232, 0.12)',
-                    textShadow: i < validatedStats.stars ? '0 0 12px rgba(212, 175, 55, 0.5)' : '',
+                    color: i < validatedStats.stars ? 'var(--secondary)' : 'rgba(255, 255, 255, 0.08)',
                     transition: 'all 0.3s ease'
                   }}
                 >
@@ -457,11 +456,11 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
             </div>
 
             <div>
-              <h4 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'Outfit', margin: 0 }}>
+              <h4 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', fontFamily: 'Manrope', margin: 0 }}>
                 {getMasteryLabel(validatedStats.stars)}
               </h4>
               <span style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px', display: 'block' }}>
-                Mastery Points: <strong style={{ color: '#D4AF37', fontSize: '15px' }}>{tierStars}</strong>
+                Mastery Points: <strong style={{ color: 'var(--secondary)', fontSize: '15px' }}>{tierStars}</strong>
               </span>
             </div>
 
@@ -472,16 +471,15 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
               </div>
 
               {/* Custom Milestone Progress Bar */}
-              <div style={{ height: '10px', background: 'rgba(212, 175, 55, 0.08)', borderRadius: '5px', overflow: 'hidden' }}>
+              <div style={{ height: '10px', background: 'rgba(244, 201, 93, 0.08)', borderRadius: '5px', overflow: 'hidden' }}>
                 <div className="anim-progress" style={{
                   height: '100%',
-                  background: 'linear-gradient(90deg, #D4AF37 0%, #E8CC6A 100%)',
-                  borderRadius: '5px',
-                  boxShadow: '0 0 8px rgba(212, 175, 55, 0.35)'
+                  background: 'var(--reward-gradient)',
+                  borderRadius: '5px'
                 }} />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '11px', fontWeight: 700, color: '#D4AF37' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '11px', fontWeight: 700, color: 'var(--secondary)' }}>
                 <span>{pointsRemaining} Points Remaining</span>
               </div>
             </div>
@@ -521,7 +519,7 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
                         {validatedPrevAttempt.accuracy}% → {validatedStats.accuracy}%
                       </span>
                       {validatedStats.accuracy - validatedPrevAttempt.accuracy > 0 ? (
-                        <span style={{ fontSize: '11px', background: 'rgba(16,185,129,0.15)', color: '#34d399', padding: '2px 8px', borderRadius: '6px', fontWeight: 700 }}>
+                        <span style={{ fontSize: '11px', background: 'rgba(67, 217, 163, 0.15)', color: 'var(--success)', padding: '2px 8px', borderRadius: '6px', fontWeight: 700 }}>
                           +{(validatedStats.accuracy - validatedPrevAttempt.accuracy)}%
                         </span>
                       ) : (
@@ -540,7 +538,7 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
                         {validatedPrevAttempt.wpm} → {validatedStats.wpm} WPM
                       </span>
                       {validatedStats.wpm - validatedPrevAttempt.wpm > 0 ? (
-                        <span style={{ fontSize: '11px', background: 'rgba(16,185,129,0.15)', color: '#34d399', padding: '2px 8px', borderRadius: '6px', fontWeight: 700 }}>
+                        <span style={{ fontSize: '11px', background: 'rgba(67, 217, 163, 0.15)', color: 'var(--success)', padding: '2px 8px', borderRadius: '6px', fontWeight: 700 }}>
                           +{(validatedStats.wpm - validatedPrevAttempt.wpm)} WPM
                         </span>
                       ) : (
@@ -559,7 +557,7 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
                         {validatedPrevAttempt.duration}s → {validatedStats.duration}s
                       </span>
                       {validatedPrevAttempt.duration - validatedStats.duration > 0 ? (
-                        <span style={{ fontSize: '11px', background: 'rgba(16,185,129,0.15)', color: '#34d399', padding: '2px 8px', borderRadius: '6px', fontWeight: 700 }}>
+                        <span style={{ fontSize: '11px', background: 'rgba(67, 217, 163, 0.15)', color: 'var(--success)', padding: '2px 8px', borderRadius: '6px', fontWeight: 700 }}>
                           Improved by {validatedPrevAttempt.duration - validatedStats.duration} seconds
                         </span>
                       ) : (
@@ -591,9 +589,9 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
               {/* Accuracy */}
               <div style={{
-                background: 'rgba(16, 185, 129, 0.03)',
-                border: '1px solid rgba(16, 185, 129, 0.1)',
-                borderLeft: '4px solid #10b981',
+                background: 'rgba(67, 217, 163, 0.03)',
+                border: '1px solid var(--border)',
+                borderLeft: '4px solid var(--success)',
                 borderRadius: '12px',
                 padding: '12px 16px',
                 display: 'flex',
@@ -602,17 +600,17 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
                 minHeight: '80px',
                 boxSizing: 'border-box'
               }}>
-                <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Accuracy</span>
-                <strong style={{ fontSize: '18px', fontWeight: 800, color: '#10b981', marginTop: '4px', fontFamily: 'Outfit' }}>
+                <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 500 }}>Accuracy</span>
+                <strong style={{ fontSize: '18px', fontWeight: 700, color: 'var(--success)', marginTop: '4px', fontFamily: 'Manrope' }}>
                   {validatedStats.accuracy}%
                 </strong>
               </div>
 
               {/* Reading Speed */}
               <div style={{
-                background: 'rgba(14, 165, 233, 0.03)',
-                border: '1px solid rgba(14, 165, 233, 0.1)',
-                borderLeft: '4px solid #38bdf8',
+                background: 'rgba(216, 139, 160, 0.03)',
+                border: '1px solid var(--border)',
+                borderLeft: '4px solid var(--primary)',
                 borderRadius: '12px',
                 padding: '12px 16px',
                 display: 'flex',
@@ -621,17 +619,17 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
                 minHeight: '80px',
                 boxSizing: 'border-box'
               }}>
-                <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Reading Speed</span>
-                <strong style={{ fontSize: '18px', fontWeight: 800, color: '#fff', marginTop: '4px', fontFamily: 'Outfit' }}>
+                <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 500 }}>Reading Speed</span>
+                <strong style={{ fontSize: '18px', fontWeight: 700, color: 'var(--primary)', marginTop: '4px', fontFamily: 'Manrope' }}>
                   {validatedStats.wpm} WPM
                 </strong>
               </div>
 
               {/* Speaking Time */}
               <div style={{
-                background: 'rgba(139, 92, 246, 0.03)',
-                border: '1px solid rgba(139, 92, 246, 0.1)',
-                borderLeft: '4px solid #a78bfa',
+                background: 'rgba(255, 255, 255, 0.01)',
+                border: '1px solid var(--border)',
+                borderLeft: '4px solid var(--border-strong)',
                 borderRadius: '12px',
                 padding: '12px 16px',
                 display: 'flex',
@@ -640,17 +638,17 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
                 minHeight: '80px',
                 boxSizing: 'border-box'
               }}>
-                <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Speaking Time</span>
-                <strong style={{ fontSize: '18px', fontWeight: 800, color: '#fff', marginTop: '4px', fontFamily: 'Outfit' }}>
+                <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 500 }}>Speaking Time</span>
+                <strong style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginTop: '4px', fontFamily: 'Manrope' }}>
                   {validatedStats.duration} sec
                 </strong>
               </div>
 
               {/* Words Read */}
               <div style={{
-                background: 'rgba(236, 72, 153, 0.03)',
-                border: '1px solid rgba(236, 72, 153, 0.1)',
-                borderLeft: '4px solid #ec4899',
+                background: 'rgba(255, 255, 255, 0.01)',
+                border: '1px solid var(--border)',
+                borderLeft: '4px solid var(--border-strong)',
                 borderRadius: '12px',
                 padding: '12px 16px',
                 display: 'flex',
@@ -659,17 +657,17 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
                 minHeight: '80px',
                 boxSizing: 'border-box'
               }}>
-                <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Words Read</span>
-                <strong style={{ fontSize: '18px', fontWeight: 800, color: '#fff', marginTop: '4px', fontFamily: 'Outfit' }}>
+                <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 500 }}>Words Read</span>
+                <strong style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginTop: '4px', fontFamily: 'Manrope' }}>
                   {validatedStats.wordsRead}
                 </strong>
               </div>
 
               {/* Completion Time */}
               <div style={{
-                background: 'rgba(249, 115, 22, 0.03)',
-                border: '1px solid rgba(249, 115, 22, 0.1)',
-                borderLeft: '4px solid #fb923c',
+                background: 'rgba(255, 255, 255, 0.01)',
+                border: '1px solid var(--border)',
+                borderLeft: '4px solid var(--border-strong)',
                 borderRadius: '12px',
                 padding: '12px 16px',
                 display: 'flex',
@@ -678,17 +676,17 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
                 minHeight: '80px',
                 boxSizing: 'border-box'
               }}>
-                <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Completion Time</span>
-                <strong style={{ fontSize: '18px', fontWeight: 800, color: '#fff', marginTop: '4px', fontFamily: 'Outfit' }}>
+                <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 500 }}>Completion Time</span>
+                <strong style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginTop: '4px', fontFamily: 'Manrope' }}>
                   {validatedStats.completionTime} sec
                 </strong>
               </div>
 
               {/* Mastery Points */}
               <div style={{
-                background: 'rgba(234, 179, 8, 0.03)',
-                border: '1px solid rgba(234, 179, 8, 0.1)',
-                borderLeft: '4px solid #fbbf24',
+                background: 'rgba(244, 201, 93, 0.03)',
+                border: '1px solid var(--border)',
+                borderLeft: '4px solid var(--secondary)',
                 borderRadius: '12px',
                 padding: '12px 16px',
                 display: 'flex',
@@ -697,8 +695,8 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
                 minHeight: '80px',
                 boxSizing: 'border-box'
               }}>
-                <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Mastery Points</span>
-                <strong style={{ fontSize: '18px', fontWeight: 800, color: '#fbbf24', marginTop: '4px', fontFamily: 'Outfit' }}>
+                <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 500 }}>Mastery Points</span>
+                <strong style={{ fontSize: '18px', fontWeight: 700, color: 'var(--secondary)', marginTop: '4px', fontFamily: 'Manrope' }}>
                   {validatedStats.stars}
                 </strong>
               </div>
@@ -719,8 +717,8 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
                       display: 'flex',
                       alignItems: 'center',
                       gap: '12px',
-                      background: 'rgba(212, 175, 55, 0.08)',
-                      border: '1px solid rgba(212, 175, 55, 0.2)',
+                      background: 'rgba(244, 201, 93, 0.08)',
+                      border: '1px solid rgba(244, 201, 93, 0.2)',
                       borderRadius: '16px',
                       padding: '12px'
                     }}
@@ -737,22 +735,22 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
           )}
 
           {/* SECTION 5: UP NEXT */}
-          <div className="glass-card anim-slide-up" style={{
+          <div className="card-secondary anim-slide-up" style={{
             padding: '16px 20px',
-            border: '1px solid rgba(212, 175, 55, 0.2)',
-            background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.06) 0%, rgba(20, 18, 28, 0.6) 100%)',
+            border: '1px solid var(--border)',
+            background: 'var(--surface)',
             margin: 0,
             borderRadius: '20px',
             flexGrow: 1
           }}>
-            <h4 style={{ fontSize: '11px', color: '#D4AF37', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px', fontWeight: 800 }}>
+            <h4 style={{ fontSize: '11px', color: 'var(--secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px', fontWeight: 800 }}>
               Up Next
             </h4>
 
             {isNextMissionAvailable && nextRecommendedMission ? (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
                 <div>
-                  <h5 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 6px', fontFamily: 'Outfit' }}>
+                  <h5 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 6px', fontFamily: 'Manrope' }}>
                     {nextRecommendedMission.id === 9999 ? 'Daily Challenge' : nextRecommendedMission.title}
                   </h5>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 500 }}>
@@ -777,7 +775,6 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
                     fontWeight: 700,
                     height: '38px',
                     whiteSpace: 'nowrap',
-                    boxShadow: '0 4px 12px rgba(212, 175, 55, 0.25)'
                   }}
                   onClick={() => onStartMission(nextRecommendedMission)}
                 >
@@ -787,7 +784,7 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
             ) : (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
                 <div>
-                  <h5 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-muted)', margin: '0 0 6px', fontFamily: 'Outfit' }}>
+                  <h5 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-muted)', margin: '0 0 6px', fontFamily: 'Manrope' }}>
                     New Journeys
                   </h5>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 500 }}>
@@ -835,7 +832,7 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
                   padding: '6px 12px',
                   borderRadius: '16px',
                   border: '1px solid rgba(255, 255, 255, 0.08)',
-                  background: isPlayingAudio ? '#ef4444' : 'rgba(255,255,255,0.05)',
+                  background: isPlayingAudio ? 'var(--danger)' : 'rgba(255,255,255,0.05)',
                   color: '#fff',
                   fontSize: '11px',
                   fontWeight: 700,
@@ -868,13 +865,12 @@ export const CompletionScreen: React.FC<CompletionScreenProps> = ({
                   width: '100%',
                   padding: '14px 20px',
                   fontSize: '15px',
-                  fontWeight: 800,
+                  fontWeight: 700,
                   borderRadius: '16px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px',
-                  boxShadow: '0 8px 20px rgba(var(--primary-rgb), 0.25)'
+                  gap: '8px'
                 }}
                 onClick={() => onStartMission(nextRecommendedMission)}
               >

@@ -43,10 +43,10 @@ export const JourneyScreen: React.FC<JourneyScreenProps> = ({
   // Total Beginner Completions
   const beginnerCompletedCount = missions.filter(m => m.difficulty === 'beginner' && completedIds.includes(m.id)).length;
   
-  // Total Intermediate/Advanced completions
+  // Total Cumulative completions
   const totalCompletedCount = completedIds.length;
 
-  // Calculate total mastery points (sum of stars)
+  // Calculate total mastery points
   const totalMasteryPoints = Object.values(profile.completedMissions).reduce((sum, item) => sum + item.stars, 0);
 
   // Level Lock Requirements
@@ -75,19 +75,19 @@ export const JourneyScreen: React.FC<JourneyScreenProps> = ({
     return profile.completedMissions[missionId]?.stars || 0;
   };
 
-  // Layout parameters for the winding serpentine road path
-  const NODE_SPACING = 140;
+  // Compact layout spacing to reduce excessive vertical empty space
+  const NODE_SPACING = 100; // Reduced from 140px to 100px for tight, premium RPG look
   const trackWidth = 392;
   const centerX = trackWidth / 2;
 
   // Compute absolute layout positions for nodes
   const points = tierMissions.map((mission, idx) => {
     const indexInTier = (mission.id - 1) % 50 + 1;
-    // serptentine wave offset
-    const xOffset = Math.sin(indexInTier * 1.1) * 75;
+    // Serpentine wave offset
+    const xOffset = Math.sin(indexInTier * 1.15) * 65;
     return {
       x: centerX + xOffset,
-      y: idx * NODE_SPACING + 80,
+      y: idx * NODE_SPACING + 70,
       mission,
       idx
     };
@@ -163,23 +163,24 @@ export const JourneyScreen: React.FC<JourneyScreenProps> = ({
 
   return (
     <div style={{ padding: '16px 0 0' }}>
-      <div style={{ textAlign: 'center', padding: '0 16px', marginBottom: '20px' }}>
-        <h2 style={{ fontSize: '22px', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--text-primary)' }}>
+      {/* Title & Stats Summary */}
+      <div style={{ textAlign: 'center', padding: '0 16px', marginBottom: '16px' }}>
+        <h2 style={{ fontSize: '22px', fontWeight: 700, fontFamily: 'Manrope', color: 'var(--text-primary)' }}>
           Speaking Journey
         </h2>
-        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-          Completed: <strong style={{ color: '#D4AF37' }}>{totalCompletedCount}/150</strong> • Mastery: <strong style={{ color: '#D4AF37' }}>{totalMasteryPoints} ⭐</strong>
+        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+          Completed: <strong style={{ color: 'var(--secondary)' }}>{totalCompletedCount}/150</strong> • Mastery: <strong style={{ color: 'var(--reward)' }}>{totalMasteryPoints} ★</strong>
         </p>
       </div>
 
-      {/* Tier Switch Tabs */}
+      {/* Segmented Tier Switch Tabs */}
       <div style={{
         display: 'flex',
-        background: 'rgba(212, 175, 55, 0.04)',
+        background: 'rgba(255, 255, 255, 0.02)',
         borderRadius: '16px',
         padding: '4px',
-        margin: '0 16px 20px',
-        border: '1px solid rgba(212, 175, 55, 0.1)',
+        margin: '0 16px 16px',
+        border: '1px solid var(--border)',
         position: 'relative',
         zIndex: 10
       }}>
@@ -195,9 +196,9 @@ export const JourneyScreen: React.FC<JourneyScreenProps> = ({
                 flex: 1,
                 padding: '10px 4px',
                 border: 'none',
-                background: isActive ? 'linear-gradient(135deg, #D4AF37 0%, #A88A1E 100%)' : 'none',
+                background: isActive ? 'var(--accent-gradient)' : 'none',
                 borderRadius: '12px',
-                color: isActive ? '#0d0d12' : isLocked ? 'rgba(245, 240, 232, 0.25)' : 'rgba(245, 240, 232, 0.6)',
+                color: isActive ? 'var(--bg-deep)' : isLocked ? 'var(--text-muted)' : 'var(--text-secondary)',
                 fontSize: '12px',
                 fontWeight: 700,
                 cursor: 'pointer',
@@ -205,7 +206,7 @@ export const JourneyScreen: React.FC<JourneyScreenProps> = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '4px',
-                transition: 'all 0.3s ease'
+                transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
               }}
             >
               {isLocked && <Lock size={12} />}
@@ -217,22 +218,22 @@ export const JourneyScreen: React.FC<JourneyScreenProps> = ({
 
       {/* Tier Locked Status Card */}
       {isTierLocked(selectedTab) && (
-        <div className="glass-card" style={{
-          background: 'rgba(212, 175, 55, 0.05)',
-          border: '1px solid rgba(212, 175, 55, 0.2)',
-          margin: '0 16px 20px',
+        <div className="card-secondary" style={{
+          background: 'rgba(255, 92, 117, 0.04)',
+          border: '1.5px solid rgba(255, 92, 117, 0.2)',
+          margin: '0 16px 16px',
           padding: '16px',
           display: 'flex',
           gap: '12px',
           position: 'relative',
           zIndex: 10
         }}>
-          <AlertCircle size={20} style={{ color: '#D4AF37', flexShrink: 0 }} />
-          <div>
-            <h4 style={{ color: '#D4AF37', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase' }}>
-              Level Stage Locked
+          <AlertCircle size={20} style={{ color: 'var(--danger)', flexShrink: 0 }} />
+          <div style={{ textAlign: 'left' }}>
+            <h4 style={{ color: 'var(--danger)', fontSize: '13px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Stage Tier Locked
             </h4>
-            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px', lineHeight: '1.4' }}>
+            <p style={{ fontSize: '12.5px', color: 'var(--text-secondary)', marginTop: '4px', lineHeight: '1.4' }}>
               {selectedTab === 'intermediate' ? (
                 <>
                   Intermediate unlocks after completing <strong>50 Beginner Missions</strong> (Currently: <strong>{beginnerCompletedCount}/50</strong>) AND earning <strong>180 Mastery Points</strong> (Currently: <strong>{totalMasteryPoints}/180</strong>).
@@ -247,7 +248,7 @@ export const JourneyScreen: React.FC<JourneyScreenProps> = ({
         </div>
       )}
 
-      {/* Winding Map Container */}
+      {/* Connected Winding Map */}
       <div style={{ display: 'flex', justifyContent: 'center', width: '100%', overflow: 'hidden' }}>
         <div 
           className="journey-tree-container" 
@@ -266,32 +267,32 @@ export const JourneyScreen: React.FC<JourneyScreenProps> = ({
                 top: zone.top,
                 height: zone.height,
                 backgroundImage: `url(${zone.bg})`,
-                backgroundPositionY: `${(scrollTop - zone.top) * 0.18}px`,
+                backgroundPositionY: `${(scrollTop - zone.top) * 0.16}px`,
                 backgroundAttachment: 'scroll'
               }}
             >
-              <div className="environment-header" style={{ top: '24px' }}>
+              <div className="environment-header" style={{ top: '20px' }}>
                 <div className="environment-badge">
                   <span>{zone.icon}</span>
                   <span>{zone.title}</span>
-                  <span style={{ opacity: 0.3 }}>|</span>
-                  <span style={{ opacity: 0.9, fontSize: '9px' }}>{zone.range}</span>
+                  <span style={{ opacity: 0.2 }}>|</span>
+                  <span style={{ opacity: 0.8, fontSize: '9px' }}>{zone.range}</span>
                 </div>
               </div>
             </div>
           ))}
 
-          {/* SVG Connector Paths */}
+          {/* Connected SVG Connector Paths */}
           <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }}>
             {/* Background dashed connector */}
             {pathD && (
               <path
                 d={pathD}
                 fill="none"
-                stroke="rgba(212, 175, 55, 0.15)"
-                strokeWidth="6"
+                stroke="rgba(255, 255, 255, 0.06)"
+                strokeWidth="5"
                 strokeLinecap="round"
-                strokeDasharray="8 10"
+                strokeDasharray="6 8"
               />
             )}
             
@@ -300,20 +301,22 @@ export const JourneyScreen: React.FC<JourneyScreenProps> = ({
               <path
                 d={unlockedD}
                 fill="none"
-                stroke="#D4AF37"
-                strokeWidth="6"
+                stroke="var(--primary)"
+                strokeWidth="5"
                 strokeLinecap="round"
-                style={{ filter: 'drop-shadow(0 0 5px rgba(212, 175, 55, 0.6))' }}
               />
             )}
           </svg>
 
-          {/* Serpent level nodes */}
+          {/* Serpentine RPG Level Nodes */}
           {points.map(({ x, y, mission, idx }) => {
             const locked = isMissionLocked(mission);
             const completed = completedIds.includes(mission.id);
             const stars = getMissionStars(mission.id);
             const isNext = mission.id === unlockedCount || (mission.id <= unlockedCount && !completed && idx === points.findIndex(p => !completedIds.includes(p.mission.id)));
+            
+            // Checkpoint: every 5th mission behaves as a milestone gateway
+            const isMilestone = mission.id % 5 === 0;
 
             return (
               <div
@@ -328,51 +331,58 @@ export const JourneyScreen: React.FC<JourneyScreenProps> = ({
                   disabled={locked}
                   onClick={() => onSelectMission(mission)}
                   className={`journey-node ${completed ? 'completed' : locked ? 'locked' : 'unlocked'} ${isNext ? 'active-next' : ''}`}
+                  style={{
+                    width: isMilestone ? '64px' : '56px',
+                    height: isMilestone ? '64px' : '56px',
+                    borderRadius: isMilestone ? '18px' : '50%', // RPG milestone shape
+                    borderWidth: '2px',
+                    boxShadow: 'var(--shadow-sm)'
+                  }}
                 >
                   {locked ? (
-                    <Lock size={16} />
+                    <Lock size={14} />
                   ) : completed ? (
-                    <Check size={24} strokeWidth={3.5} />
+                    <Check size={20} strokeWidth={3.5} />
                   ) : (
-                    <span>{mission.id}</span>
+                    <span style={{ fontFamily: 'Manrope', fontWeight: 700 }}>{mission.id}</span>
                   )}
 
                   {isNext && !locked && (
                     <span style={{
                       position: 'absolute',
-                      top: '-4px',
-                      right: '-4px',
-                      background: '#D4AF37',
+                      top: '-3px',
+                      right: '-3px',
+                      background: 'var(--primary)',
                       borderRadius: '50%',
                       padding: '2px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      boxShadow: '0 0 8px #D4AF37',
+                      boxShadow: 'var(--shadow-sm)',
                       zIndex: 10
                     }}>
-                      <Sparkles size={10} fill="#000" style={{ color: '#000' }} />
+                      <Sparkles size={8} fill="#000" style={{ color: '#000' }} />
                     </span>
                   )}
                 </button>
 
-                <div className="journey-node-info">
-                  <span className="journey-node-title">
+                <div className="journey-node-info" style={{ width: '120px' }}>
+                  <span className="journey-node-title" style={{ fontSize: '11px', color: locked ? 'var(--text-muted)' : 'var(--text-primary)' }}>
                     {mission.title}
                   </span>
                   
                   {completed ? (
                     <div className="journey-node-stars">
                       {Array.from({ length: 5 }).map((_, i) => (
-                        <span key={i} style={{ color: i < stars ? '#D4AF37' : 'rgba(245, 240, 232, 0.15)', fontSize: '10px' }}>
+                        <span key={i} style={{ color: i < stars ? 'var(--reward)' : 'rgba(255, 255, 255, 0.08)', fontSize: '10px' }}>
                           ★
                         </span>
                       ))}
                     </div>
                   ) : locked ? (
-                    <div className="journey-node-status" style={{ opacity: 0.5 }}>Locked</div>
+                    <div className="journey-node-status" style={{ opacity: 0.4, color: 'var(--text-muted)' }}>Locked</div>
                   ) : (
-                    <div className="journey-node-status" style={{ color: '#D4AF37', fontWeight: 700 }}>Practice</div>
+                    <div className="journey-node-status" style={{ color: 'var(--primary)', fontWeight: 700 }}>Practice</div>
                   )}
                 </div>
               </div>
